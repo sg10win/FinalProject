@@ -352,6 +352,22 @@ class ChatInterface(Frame, Client):
 
         # Chat interface
         # frame containing text box with messages and scrollbar
+        self.contacts_frame = Frame(self.master, bd=3)
+        self.contacts_frame.pack(fill=BOTH, side=LEFT)
+        self.contacts_scrollbar = Scrollbar(self.contacts_frame, bd=0)
+        self.contacts_scrollbar.pack(fill=Y, side=RIGHT)
+        self.canvas = Canvas(self.contacts_frame, bd=0, highlightthickness=0,
+                             yscrollcommand=self.contacts_scrollbar.set)
+        self.canvas.pack(side=LEFT, fill=BOTH, expand=TRUE)
+        self.contacts_scrollbar.config(command=self.canvas.yview)
+
+        self.buttons_frame = Frame(self.canvas)
+        self.buttons_frame.pack(fill=BOTH)
+        self.button_try = Button(self.buttons_frame, text='try', width=10)
+        self.button_try.pack(padx=10, pady=5, side=TOP)
+
+      
+
         self.text_frame = Frame(self.master, bd=6)
         self.text_frame.pack(expand=True, fill=BOTH)
 

@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="d0b7bec3-4603-464b-aa89-3dedc073164e" name="Default Changelist" comment="" />
+    <list default="true" id="d0b7bec3-4603-464b-aa89-3dedc073164e" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/temp.py" beforeDir="false" afterPath="$PROJECT_DIR$/temp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/users_01.db" beforeDir="false" afterPath="$PROJECT_DIR$/users_01.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/users_01.db-journal" beforeDir="false" afterPath="$PROJECT_DIR$/users_01.db-journal" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -13,6 +18,9 @@
         <option value="Python Script" />
       </list>
     </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectId" id="1Vbb2NX6x8W5bDcgPNB3yZBdlOI" />
   <component name="ProjectViewState">
@@ -50,27 +58,6 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Server-DB.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="client" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Newww" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/client.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -142,20 +129,41 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="tryScrollBar" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Newww" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tryScrollBar.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <list>
-      <item itemvalue="Python.client" />
       <item itemvalue="Python.client_new_work" />
       <item itemvalue="Python.Server-DB" />
       <item itemvalue="Python.temp" />
       <item itemvalue="Python.combination" />
+      <item itemvalue="Python.tryScrollBar" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Python.temp" />
         <item itemvalue="Python.Server-DB" />
+        <item itemvalue="Python.tryScrollBar" />
         <item itemvalue="Python.combination" />
         <item itemvalue="Python.client_new_work" />
-        <item itemvalue="Python.client" />
       </list>
     </recent_temporary>
   </component>
@@ -197,22 +205,22 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="549" y="168" key="FileChooserDialogImpl/0.0.1536.824@0.0.1536.824" timestamp="1579675395318" />
-    <state width="1515" height="195" key="GridCell.Tab.0.bottom" timestamp="1580380283455">
+    <state width="1515" height="195" key="GridCell.Tab.0.bottom" timestamp="1580383665968">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1515" height="195" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1580380283455" />
-    <state width="1515" height="195" key="GridCell.Tab.0.center" timestamp="1580380283454">
+    <state width="1515" height="195" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1580383665968" />
+    <state width="1515" height="195" key="GridCell.Tab.0.center" timestamp="1580383665968">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1515" height="195" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1580380283454" />
-    <state width="1515" height="195" key="GridCell.Tab.0.left" timestamp="1580380283454">
+    <state width="1515" height="195" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1580383665968" />
+    <state width="1515" height="195" key="GridCell.Tab.0.left" timestamp="1580383665967">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1515" height="195" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1580380283454" />
-    <state width="1515" height="195" key="GridCell.Tab.0.right" timestamp="1580380283454">
+    <state width="1515" height="195" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1580383665967" />
+    <state width="1515" height="195" key="GridCell.Tab.0.right" timestamp="1580383665968">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state width="1515" height="195" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1580380283454" />
+    <state width="1515" height="195" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1580383665968" />
     <state width="1515" height="261" key="GridCell.Tab.1.bottom" timestamp="1579432156605">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
