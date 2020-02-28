@@ -3,6 +3,8 @@ import sqlite3
 import select
 import datetime
 
+from cryptography.fernet import Fernet
+
 
 class Client(object):
     def __init__(self, username, socket):
@@ -184,6 +186,11 @@ class Server(object):
                 else:
                     data = current_socket.recv(1024)
                     if not data.decode('utf-8') == '':
+                        print("189"+data.decode())
+
+                        key,data = data.split(b"%%%")
+                        print(type(key),"= ",key)
+                        data = self.do_decrypt(key, data)
                         print(str(data.decode('utf-8')))
                     # if self.open_client_sockets[current_socket] == "":  # this is the sign of new singing in user
                     if self.clients.get_username(current_socket) == '':  # this is the sign of new singing in user
@@ -203,6 +210,9 @@ class Server(object):
             # for client_socket in list(self.open_client_sockets.keys()):
             for client_socket in self.clients.get_sockets():
                 if client_socket in current_sockets and client_socket in wlist:
+                    key = Fernet.generate_key()  # generates new key (bytes object) randomly
+                    data = key.decode()+"%%%"+self.do_encrypt(key, data.encode()).decode()
+                    print("the data in line 212: "+str(data))
 
                     msg_to_send = data.encode('utf-8')
                     client_socket.send(msg_to_send)
@@ -251,6 +261,13 @@ class Server(object):
                 print('exit client: ', tmp[0].decode('utf-8'))
                 return False
         return True
+    def do_decrypt(self, key, data):  # the params are byte object. return byte object
+        f = Fernet(key)
+        return f.decrypt(data)
+
+    def do_encrypt(self, key, data):  # the params are byte object. return byte object
+        f = Fernet(key)
+        return f.encrypt(data)
 
     def decifer(self, data, current_socket):
         '''___TODO___'''
@@ -281,7 +298,10 @@ class Server(object):
     def send_messages_without_sender(self, message, sender):
         for client_socket in self.clients.get_sockets():
             if not client_socket == sender:
+                key = Fernet.generate_key()  # generates new key (bytes object) randomly
+                message = key.decode() + "%%%" + self.do_encrypt(key, message.encode()).decode()
                 client_socket.send(message.encode('utf-8'))
+                print("ad :"+message)
 
     def signup_process(self, data, curret_socket, wlist):
         '''__TODO__ SEND THIS PARAMS TO THE DATABASE'''

@@ -7,6 +7,10 @@ import time
 import select
 from queue import Queue
 from threading import *
+from PIL import ImageTk,Image
+from tkinter import *
+
+from cryptography.fernet import Fernet
 
 conn_q = Queue()
 gui_q = Queue()
@@ -35,6 +39,9 @@ class Client():
         global nameE
 
         self.delete_all_in_root(roots)
+        ##############################################################################################################
+
+        ##############################################################################################################
         # This creates the window, just a blank one.
         roots.geometry('360x185')
         roots.resizable(width=False, height=False)
@@ -108,8 +115,13 @@ class Client():
                 rlist, wlist, xlist = select.select([self.my_socket], [self.my_socket], [])
                 self.wlist = wlist
                 if self.my_socket in rlist:
-                    data = self.my_socket.recv(1024).decode('utf-8')
+                    data = self.my_socket.recv(1024).decode('utf-8').encode()
+                    print("data befor errrr :"+data.decode())
+                    data = data.split(b"%%%")
+                    key, data = data
+                    data = self.do_decrypt(key, data).decode()
                     print(data)
+                    print("124"+data)
                     dell = Label(roots, text="\n", width=25)
                     dell.grid(row=5, column=0)
                     roots.update()
@@ -144,11 +156,27 @@ class Client():
         for item in list:
             item.destroy()
 
+    def do_decrypt(self, key, data):  # the params are byte object. return byte object
+        f = Fernet(key)
+        return f.decrypt(data)
+
+    def do_encrypt(self, key, data):  # the params are byte object. return byte object
+        f = Fernet(key)
+        print(f.encrypt(data.encode()))
+        return f.encrypt(data.encode())
+
     def send_messages(self):
+        print("entered to send msgs")
         for message in self.messages:
             if not self.wlist == None:
-                self.my_socket.send(str(message).encode('utf-8'))
+                key = Fernet.generate_key()#generates new key (bytes object) randomly
+                data = key.decode() + "%%%" + self.do_encrypt(key, message).decode()
+                print(data)
+                print(type(data))
+                print("really sent:" + data)
+                self.my_socket.send(data.encode('utf-8'))
                 print("sent: " + message)
+
                 self.messages.remove(message)
 
     def Login(self, roots):
@@ -202,12 +230,17 @@ class Client():
             rlist, wlist, xlist = select.select([self.my_socket], [self.my_socket], [])
             if self.my_socket in rlist:
                 data = self.my_socket.recv(1024).decode('utf-8')
-                print(data)
+                data = data.split("%%%")
+                key,data = data
+                data = self.do_decrypt(key,data.encode())
+                print("231"+data.decode())
+                data = data.decode()
                 dell = Label(roots, text="\n", width=25)
                 dell.grid(row=5, column=0)
                 roots.update()
 
                 if data == "loged-in":
+                    print("000")
                     self.username = username
                     notificationL = Label(roots, text=data, bg='SpringGreen2', width=18)
                     notificationL.grid(row=5, column=0)
@@ -238,8 +271,10 @@ class Client():
         #     notificationL = Label(roots, text='Fill all and re-password\n(min 6 characters)', bg='firebrick2', width=25)
         #     notificationL.grid(row=5, column=0)
 
-    def send_message(self, message):
-        self.my_socket.send(message.encode('utf-8'))
+    def send_message(self, message):#to swichhhhhh
+        self.messages.append(message)
+        self.send_messages()
+        #self.my_socket.send(message.encode('utf-8'))
         print(message)
 
     def listen_to_server(self):
@@ -247,12 +282,18 @@ class Client():
             rlist, wlist, xlist = select.select([self.my_socket], [self.my_socket], [])
             if self.my_socket in rlist:
                 data = self.my_socket.recv(1024).decode('utf-8')
-                print(data)
+                print ("data in line 280:"+data)
                 if data == "":
                     print("connection closed")
                     self.my_socket.close()
                     self.is_close = True
                     return
+
+                data = data.split("%%%")
+                key, data = data
+                data = self.do_decrypt(key.encode(), data.encode()).decode()
+                print(data)
+
                 if data.split('%%%')[0] == 'public':
                     message_q.put(data)
                 # gui_q.put(data)
@@ -275,6 +316,7 @@ class ChatInterface(Frame, Client):
         Frame.__init__(self, master)
         self.master = master
         self.master.geometry("600x350")
+        self.master.title('IChat')
         guiThread = Thread(target=self.updata_gui_loop)
         guiThread.start()
 
@@ -360,13 +402,13 @@ class ChatInterface(Frame, Client):
                              yscrollcommand=self.contacts_scrollbar.set)
         self.canvas.pack(side=LEFT, fill=BOTH, expand=TRUE)
         self.contacts_scrollbar.config(command=self.canvas.yview)
-
-        self.buttons_frame = Frame(self.canvas)
-        self.buttons_frame.pack(fill=BOTH)
-        self.button_try = Button(self.buttons_frame, text='try', width=10)
-        self.button_try.pack(padx=10, pady=5, side=TOP)
-
-      
+        # just to show how it will look like
+        contacts = ["contact1","contact2","contact3","contact4","contact5","contact6","contact7","contact8","contact9","contact10"]
+        for i in contacts:
+            self.buttons_frame = Frame(self.canvas)
+            self.buttons_frame.pack(fill=BOTH)
+            self.button_try = Button(self.buttons_frame, text=i, width=10)
+            self.button_try.pack(padx=10, pady=5, side=TOP)
 
         self.text_frame = Frame(self.master, bd=6)
         self.text_frame.pack(expand=True, fill=BOTH)
@@ -409,6 +451,7 @@ class ChatInterface(Frame, Client):
         # self.emoji_button.pack(side=RIGHT, padx=6, pady=6, ipady=2)
         # self.color_theme_hacker()
         self.last_sent_label(date="No messages sent.")
+        self.color_theme_dark_blue()
         master.mainloop()
         self.client_exit()
 
@@ -438,6 +481,8 @@ class ChatInterface(Frame, Client):
         self.font = "fixedsys"
 
     def color_theme_default(self):
+        self.contacts_frame.config(bg="#EEEEEE")
+        self.canvas.config(bg="#EEEEEE")
         self.master.config(bg="#EEEEEE")
         self.text_frame.config(bg="#EEEEEE")
         self.entry_frame.config(bg="#EEEEEE")
@@ -452,6 +497,9 @@ class ChatInterface(Frame, Client):
         self.tl_fg = "#000000"
 
     def color_theme_hacker(self):
+        #self.contacts_frame.config(bg="red")
+        #self.button_try.config(bd=0)
+        #self.canvas.config(bg="#0F0F0F")
         self.master.config(bg="#0F0F0F")
         self.text_frame.config(bg="#0F0F0F")
         self.entry_frame.config(bg="#0F0F0F")
@@ -465,6 +513,7 @@ class ChatInterface(Frame, Client):
         self.tl_fg = "#33FF33"
 
     def color_theme_dark_blue(self):
+        self.contacts_frame.config(bg="#263b54")
         self.master.config(bg="#263b54")
         self.text_frame.config(bg="#263b54")
         self.text_box.config(bg="#1c2e44", fg="#FFFFFF")
