@@ -7,10 +7,13 @@ import time
 import select
 from queue import Queue
 from threading import *
+from tkinter import filedialog
+
 from PIL import ImageTk,Image
 from tkinter import *
-
+from NewChat import NewChatInterface
 from cryptography.fernet import Fernet
+from private_chat_buttons import PrivateChatButton
 
 conn_q = Queue()
 gui_q = Queue()
@@ -20,14 +23,18 @@ message_q = Queue()
 class Client():
     def __init__(self, roots):
         self.roots = roots
-        self.messages = []
+        self.messages_to_send = []
         self.wlist = []
+        self.is_login = False
+        self.is_close = False
+        self.current_id = "public"
+        self.current_external_id = "public"
         self.username = ""
         self.my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.my_socket.connect(("127.0.0.1", 8080))
         print('Connected to server')
-        self.is_login = False
-        self.is_close = False
+
+
 
     def get_roots(self):
         return self.roots
@@ -93,14 +100,14 @@ class Client():
         print("username = ", username)
         print()
         if password == re_password and username != "" and email != "" and password != "" and re_password != "" and len(
-                password) > 5:
+                password) > 0:
             hashed_password = (hashlib.md5(pwordE.get().encode())).hexdigest()
             hashed_re_password = (hashlib.md5(re_pwordE.get().encode())).hexdigest()
             print("Hashed password = ", hashed_password)
             print("hashed re-password = ", hashed_re_password)
             msg_to_server = email + "%%%" + username + "%%%" + hashed_password
             print("msg_to_server = ", msg_to_server)
-            self.messages.append(msg_to_server)
+            self.messages_to_send.append(msg_to_server)
             # try:
             #     self.my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             #     self.my_socket.connect(("127.0.0.1", 8080))
@@ -116,7 +123,6 @@ class Client():
                 self.wlist = wlist
                 if self.my_socket in rlist:
                     data = self.my_socket.recv(1024).decode('utf-8').encode()
-                    print("data befor errrr :"+data.decode())
                     data = data.split(b"%%%")
                     key, data = data
                     data = self.do_decrypt(key, data).decode()
@@ -167,7 +173,7 @@ class Client():
 
     def send_messages(self):
         print("entered to send msgs")
-        for message in self.messages:
+        for message in self.messages_to_send:
             if not self.wlist == None:
                 key = Fernet.generate_key()#generates new key (bytes object) randomly
                 data = key.decode() + "%%%" + self.do_encrypt(key, message).decode()
@@ -177,7 +183,7 @@ class Client():
                 self.my_socket.send(data.encode('utf-8'))
                 print("sent: " + message)
 
-                self.messages.remove(message)
+                self.messages_to_send.remove(message)
 
     def Login(self, roots):
         global nameEL
@@ -223,7 +229,7 @@ class Client():
 
         msg_to_server = username + "%%%" + hashed_password
         print("msg_to_server = ", msg_to_server)
-        self.messages.append(msg_to_server)
+        self.messages_to_send.append(msg_to_server)
         self.send_messages()
 
         while 1:
@@ -272,9 +278,8 @@ class Client():
         #     notificationL.grid(row=5, column=0)
 
     def send_message(self, message):#to swichhhhhh
-        self.messages.append(message)
+        self.messages_to_send.append(message)
         self.send_messages()
-        #self.my_socket.send(message.encode('utf-8'))
         print(message)
 
     def listen_to_server(self):
@@ -282,7 +287,6 @@ class Client():
             rlist, wlist, xlist = select.select([self.my_socket], [self.my_socket], [])
             if self.my_socket in rlist:
                 data = self.my_socket.recv(1024).decode('utf-8')
-                print ("data in line 280:"+data)
                 if data == "":
                     print("connection closed")
                     self.my_socket.close()
@@ -294,10 +298,12 @@ class Client():
                 data = self.do_decrypt(key.encode(), data.encode()).decode()
                 print(data)
 
-                if data.split('%%%')[0] == 'public':
-                    message_q.put(data)
+                #if data.split('%%%')[0] == 'public':# and self.current_chat == "public" :
+                message_q.put(data)
                 # gui_q.put(data)
                 time.sleep(0.05)
+                #if data.split('%%%')[0] == 'private':# and self.current_chat == "private":
+
 
 
 class ChatInterface(Frame, Client):
@@ -311,6 +317,7 @@ class ChatInterface(Frame, Client):
             return
         commThread = Thread(target=self.listen_to_server)
         commThread.start()
+
         ##################################################
         master = Tk()
         Frame.__init__(self, master)
@@ -325,6 +332,7 @@ class ChatInterface(Frame, Client):
         self.tl_bg2 = "#EEEEEE"
         self.tl_fg = "#000000"
         self.font = "Verdana 10"
+
 
         menu = Menu(self.master)
         self.master.config(menu=menu, bd=5)
@@ -378,6 +386,11 @@ class ChatInterface(Frame, Client):
         options.add_command(label="Default layout", command=self.default_format)
 
         options.add_separator()
+        #new chat menu
+        new_chat = Menu(menu, tearoff=0)
+        menu.add_cascade(label="new chat", menu=new_chat)
+        new_chat.add_command(label="open new chat", command=self.open_new_chat_window)
+
 
         # change default window size
         # change default window size
@@ -396,18 +409,30 @@ class ChatInterface(Frame, Client):
         # frame containing text box with messages and scrollbar
         self.contacts_frame = Frame(self.master, bd=3)
         self.contacts_frame.pack(fill=BOTH, side=LEFT)
-        self.contacts_scrollbar = Scrollbar(self.contacts_frame, bd=0)
-        self.contacts_scrollbar.pack(fill=Y, side=RIGHT)
+        self.contacts_scrollbar = Scrollbar(self.contacts_frame,orient=VERTICAL)
+        self.contacts_scrollbar.pack(fill=Y, side=RIGHT, expand=FALSE)
         self.canvas = Canvas(self.contacts_frame, bd=0, highlightthickness=0,
                              yscrollcommand=self.contacts_scrollbar.set)
         self.canvas.pack(side=LEFT, fill=BOTH, expand=TRUE)
         self.contacts_scrollbar.config(command=self.canvas.yview)
+
+        def _on_mouse(event):
+            self.canvas.yview_scroll(int(-1 * (event.delta / 120)), 'units')
+
+        self.canvas.bind_all('<MouseWheel>', _on_mouse)
+
+        # reset the view
+        self.canvas.xview_moveto(0)
+        self.canvas.yview_moveto(0)
+
+
+
         # just to show how it will look like
-        contacts = ["contact1","contact2","contact3","contact4","contact5","contact6","contact7","contact8","contact9","contact10"]
+        contacts = ["PUBLIC"]
         for i in contacts:
             self.buttons_frame = Frame(self.canvas)
             self.buttons_frame.pack(fill=BOTH)
-            self.button_try = Button(self.buttons_frame, text=i, width=10)
+            self.button_try = Button(self.buttons_frame, text=i, width=10, command=lambda: self.change_to_public_mode())
             self.button_try.pack(padx=10, pady=5, side=TOP)
 
         self.text_frame = Frame(self.master, bd=6)
@@ -433,7 +458,7 @@ class ChatInterface(Frame, Client):
         self.entry_field.pack(fill=X, padx=6, pady=6, ipady=3)
         # self.users_message = self.entry_field.get()
 
-        # frame containing send button and emoji button
+        # frame containing send button and choose file to upload
         self.send_button_frame = Frame(self.master, bd=0)
         self.send_button_frame.pack(fill=BOTH)
 
@@ -443,6 +468,10 @@ class ChatInterface(Frame, Client):
                                   activeforeground="#000000")
         self.send_button.pack(side=LEFT, ipady=2)
         self.master.bind("<Return>", self.send_message_event)
+        self.file_button = Button(self.send_button_frame, text="file", width=4, relief=GROOVE, bg='white',
+                                                              bd=1, command=self.choose_file, activebackground="#FFFFFF",
+                                                              activeforeground="#000000")
+        self.file_button.pack(side=RIGHT, padx=6, pady=6, ipady=2)
 
         # emoticons
         # self.emoji_button = Button(self.send_button_frame, text="*", width=2, relief=GROOVE, bg='white',
@@ -454,6 +483,13 @@ class ChatInterface(Frame, Client):
         self.color_theme_dark_blue()
         master.mainloop()
         self.client_exit()
+
+    def change_to_public_mode(self):
+        self.current_id = "public"
+        self.current_external_id = "public"
+        self.text_box.config(state=NORMAL)
+        self.text_box.delete(1.0, END)
+        self.text_box.config(state=DISABLED)
 
     def last_sent_label(self, date):
 
@@ -534,8 +570,13 @@ class ChatInterface(Frame, Client):
     def send_message(self):
 
         user_input = self.entry_field.get()
+        print(f"current_id={self.current_id}")
+        if self.current_id != "public": # in private chat ...
+            msg_to_send = f"private%%%{self.username}%%%{self.current_id}%%%{self.current_external_id}%%%{user_input}"
 
-        msg_to_send = "public%%%" + self.username + "%%%" + user_input
+            print(msg_to_send)
+        if self.current_id == "public":
+            msg_to_send = "public%%%" + self.username + "%%%" + user_input
 
         username = saved_username[-1] + ": "
         message = (username, user_input)
@@ -565,12 +606,14 @@ class ChatInterface(Frame, Client):
         msg_to_server = self.username + "%%%NAK"
         print(len(msg_to_server.split('%%%')))
         print("msg_to_server = ", msg_to_server)
-        self.messages.append(msg_to_server)
+        self.messages_to_send.append(msg_to_server)
         self.send_messages()
-        time.sleep(0.05)
+        time.sleep(0.01)
         exit()
         pass
-
+    def choose_file(self):
+        file_path = filedialog.askopenfilename()
+        print("the file path: " + file_path)
     def clear_chat(self):
         pass
 
@@ -581,6 +624,14 @@ class ChatInterface(Frame, Client):
         msg = message.split('%%%')
         return msg[1] + ': ' + msg[2]
 
+    def open_new_chat_window(self):
+        NewChatInterface(self)
+        from NewChat import msg
+        msg = msg + "," + self.username
+        print("in temp class :"+msg)
+        self.messages_to_send.append(msg)
+        self.send_messages()
+
     def updata_gui_loop(self):
         while True:
             if self.is_close:
@@ -589,7 +640,50 @@ class ChatInterface(Frame, Client):
                 pass
             else:
                 message = message_q.get()
+                #TODO decipher
+                ####################################################
+                self.decipher(message)
+                self.send_messages()
+                ####################################################
+
+
+    def decipher(self, message):
+        if message.split("%%%")[0] == "public":
+            if self.current_id == "public" and self.current_external_id == "public":
                 self.send_message_insert(self.config_message(message))
+
+        elif message.split("%%%")[0] == "private":
+
+            msg = message.split("%%%")
+            username =msg[1]
+            id = msg[2]
+            msg = msg[3]
+            #TODO: CHECK IF THE CURRENT_ID IS THE SAME AS THE ID FROM THE MSG IF IT IS I NEED TO DISPLAY IT AND IF NOT I NEED TO SIGHN THE CURRENT CHAT
+            print(f"id:{id}\nself.current_id:{self.current_id}")
+            if str(self.current_id) == str(id):
+               self.send_message_insert(f"{username}: {msg}") # push it to the text box (this is only a confusing name)
+
+            else:
+               #pass #TODO I CAN USE A LIST OF BUTTONS AND TO USE IT IN ORDER TO MAKE AN ORDER OR TO COLOR THEM IF THE GOT MSGS OR BOTH
+                print ("in else")
+
+
+        elif message.split("%%%")[0] == "new chat":
+            msg = message.split("%%%")
+            id = msg[1]
+            external_id = msg[2]
+            chat_name = msg[3]
+            contacts = msg[4]
+            msgs = msg[5]
+            self.buttons_frame = Frame(self.canvas)
+            self.buttons_frame.pack(fill=BOTH)
+            b = PrivateChatButton(self.buttons_frame, chat_name, id, external_id, self)
+            b.pack(padx=10, pady=5, side=TOP)
+            print ("chat button created")
+
+
+
+
 
 
 def all_children(root):
