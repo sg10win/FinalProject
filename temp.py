@@ -14,6 +14,8 @@ from tkinter import *
 from NewChat import NewChatInterface
 from cryptography.fernet import Fernet
 from private_chat_buttons import PrivateChatButton
+from pygame import mixer  # Load the popular external library
+
 
 conn_q = Queue()
 gui_q = Queue()
@@ -33,6 +35,8 @@ class Client():
         self.my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.my_socket.connect(("127.0.0.1", 8080))
         print('Connected to server')
+        self.buttons = []
+        self.big_data = ""
 
 
 
@@ -76,12 +80,12 @@ class Client():
         nameE.grid(row=2, column=1)  # You know what this does now :D
         pwordE.grid(row=3, column=1)  # ^^
         re_pwordE.grid(row=4, column=1)
-        print("befor")
+        #print("befor")
 
         submit_Button = Button(roots, text='submit', width=25, bg="DodgerBlue2",
                                command=lambda: self.chack_Signup(
                                    roots))  # This creates the button with the text 'signup', when you click it, the command 'fssignup' will run. which is the def
-        print("after")
+        #print("after")
         submit_Button.grid(row=5, column=1, sticky="e")
         loginB = Button(roots, text='Login',
                         command=lambda: self.Login(
@@ -96,17 +100,17 @@ class Client():
         username = nameE.get()
         password = pwordE.get()
         re_password = re_pwordE.get()
-        print("email = ", email)
-        print("username = ", username)
-        print()
+        #print("email = ", email)
+        #print("username = ", username)
+        #print()
         if password == re_password and username != "" and email != "" and password != "" and re_password != "" and len(
                 password) > 0:
             hashed_password = (hashlib.md5(pwordE.get().encode())).hexdigest()
             hashed_re_password = (hashlib.md5(re_pwordE.get().encode())).hexdigest()
-            print("Hashed password = ", hashed_password)
-            print("hashed re-password = ", hashed_re_password)
+            #print("Hashed password = ", hashed_password)
+            #print("hashed re-password = ", hashed_re_password)
             msg_to_server = email + "%%%" + username + "%%%" + hashed_password
-            print("msg_to_server = ", msg_to_server)
+            #print("msg_to_server = ", msg_to_server)
             self.messages_to_send.append(msg_to_server)
             # try:
             #     self.my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -123,11 +127,12 @@ class Client():
                 self.wlist = wlist
                 if self.my_socket in rlist:
                     data = self.my_socket.recv(1024).decode('utf-8').encode()
+                    data = data[0:-7][9:]
                     data = data.split(b"%%%")
                     key, data = data
                     data = self.do_decrypt(key, data).decode()
-                    print(data)
-                    print("124"+data)
+                    #print(data)
+                    #print("124"+data)
                     dell = Label(roots, text="\n", width=25)
                     dell.grid(row=5, column=0)
                     roots.update()
@@ -138,9 +143,9 @@ class Client():
                         roots.update()
                         time.sleep(0.05)
                         self.delete_all_in_root(roots)  # delete all the item in the window
-                        print("my socket:", self.my_socket)
+                        #print("my socket:", self.my_socket)
                         # self.my_socket.close()
-                        print("my socket:", self.my_socket)
+                        #print("my socket:", self.my_socket)
                         self.Login(roots)
                         return
                     else:
@@ -168,7 +173,7 @@ class Client():
 
     def do_encrypt(self, key, data):  # the params are byte object. return byte object
         f = Fernet(key)
-        print(f.encrypt(data.encode()))
+        #print(f.encrypt(data.encode()))
         return f.encrypt(data.encode())
 
     def send_messages(self):
@@ -177,11 +182,11 @@ class Client():
             if not self.wlist == None:
                 key = Fernet.generate_key()#generates new key (bytes object) randomly
                 data = key.decode() + "%%%" + self.do_encrypt(key, message).decode()
-                print(data)
-                print(type(data))
-                print("really sent:" + data)
+                #print(data)
+                #print(type(data))
+                #print("really sent:" + data)
                 self.my_socket.send(data.encode('utf-8'))
-                print("sent: " + message)
+                #print("sent: " + message)
 
                 self.messages_to_send.remove(message)
 
@@ -219,8 +224,8 @@ class Client():
         username = nameEL.get()
         password = pwordEL.get()
         hashed_password = (hashlib.md5(pwordEL.get().encode())).hexdigest()
-        print("username = ", username)
-        print("password = ", password)
+        #print("username = ", username)
+        #print("password = ", password)
         # try:
         #     self.my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         #     self.my_socket.connect(("127.0.0.1", 8080))
@@ -228,7 +233,7 @@ class Client():
         #     print("fail open socket")
 
         msg_to_server = username + "%%%" + hashed_password
-        print("msg_to_server = ", msg_to_server)
+        #print("msg_to_server = ", msg_to_server)
         self.messages_to_send.append(msg_to_server)
         self.send_messages()
 
@@ -236,24 +241,30 @@ class Client():
             rlist, wlist, xlist = select.select([self.my_socket], [self.my_socket], [])
             if self.my_socket in rlist:
                 data = self.my_socket.recv(1024).decode('utf-8')
+                #############################################
+                print(f"{data}")
+                data = data[0:-7][9:]
+                print(f"{data}")
+                #############################################
                 data = data.split("%%%")
                 key,data = data
                 data = self.do_decrypt(key,data.encode())
-                print("231"+data.decode())
+                #print("231"+data.decode())
                 data = data.decode()
                 dell = Label(roots, text="\n", width=25)
                 dell.grid(row=5, column=0)
                 roots.update()
 
                 if data == "loged-in":
-                    print("000")
+                    print("BONDY")
+                    #print("000")
                     self.username = username
                     notificationL = Label(roots, text=data, bg='SpringGreen2', width=18)
                     notificationL.grid(row=5, column=0)
                     roots.update()
                     time.sleep(0.05)
                     roots.update()
-                    print("every thing is ok")
+                    #print("every thing is ok")
                     # self.my_socket.close()
                     roots.destroy()
                     # roots2 = Tk()
@@ -280,37 +291,86 @@ class Client():
     def send_message(self, message):#to swichhhhhh
         self.messages_to_send.append(message)
         self.send_messages()
-        print(message)
+        #print(message)
 
+    def messages_connected(self):
+        print(f"my big big big data = {self.big_data}")
+        # self.big_data = self.big_data
+        msg_split1 = self.big_data.split("End_Seg")
+        print(f"len = {len(msg_split1)}, list = {msg_split1}")
+
+        for i in range(len(msg_split1)-1):
+            mini_part = msg_split1[i]
+            mini_part = mini_part.split("Start_Seg")[1]
+            print(f"mini_part = {mini_part}")
+            key = mini_part.split("%%%")[0]
+            data = mini_part.split("%%%")[1]
+            mini_part = self.do_decrypt(key.encode(), data.encode()).decode()
+            message_q.put(mini_part)
+        self.big_data = msg_split1[len(msg_split1)-1]
+        # if msg_split1[len(msg_split1)-1] == '':
+
+
+        #
+        # msg_split2 = self.big_data.split("Start_seg")
+        # if len(msg_split1) == len(msg_split2):
+        #     for i in range(len(msg_split1)):
+        #         dt = msg_split1[i].split("Start_seg")[0]
+        #         message_q.put(dt)
+        #     self.big_data = ""
+        # elif len(msg_split1) < len(msg_split2):
+        #     for i in range(len(msg_split1)-1):
+        #         dt = msg_split1[i].split("Start_seg")[0]
+        #         message_q.put(dt)
+        #     self.big_data = "Start_seg" + msg_split1[i + 1]
+        # elif len(msg_split1) > len(msg_split2):
+        #     for i in range(len(msg_split1)-1):
+        #         dt = msg_split1[i].split("Start_seg")[0]
+        #         message_q.put(dt)
+        #     self.big_data =  msg_split1[i + 1]
     def listen_to_server(self):
         while True:
             rlist, wlist, xlist = select.select([self.my_socket], [self.my_socket], [])
             if self.my_socket in rlist:
                 data = self.my_socket.recv(1024).decode('utf-8')
+                print(f"data ====== {data}")
+                self.big_data = self.big_data + data
+
                 if data == "":
-                    print("connection closed")
+                    #print("connection closed")
                     self.my_socket.close()
                     self.is_close = True
                     return
+                # print(f"the data = {data}")
 
-                data = data.split("%%%")
-                key, data = data
-                data = self.do_decrypt(key.encode(), data.encode()).decode()
-                print(data)
 
-                #if data.split('%%%')[0] == 'public':# and self.current_chat == "public" :
-                message_q.put(data)
-                # gui_q.put(data)
+                # print(f"data befor decode = {data}")
+                # bol = True
+                # while bol:
+                #     try:
+                #         data = self.do_decrypt(key.encode(), data.encode()).decode()
+                #     except:
+                #         bol=False
+
+                # print(f"data after decode = {data}")
+                self.messages_connected()
+
+                #print(data)
+
+
+                #message_q.put(data)
+
                 time.sleep(0.05)
-                #if data.split('%%%')[0] == 'private':# and self.current_chat == "private":
+
 
 
 
 class ChatInterface(Frame, Client):
 
     def __init__(self, master=None):
+        self.bool = False
         Client.__init__(self, master)
-        self.Signup(master)
+        self.Login(master)
         ##################################################
         if self.is_login == False:
             self.client_exit()
@@ -323,7 +383,7 @@ class ChatInterface(Frame, Client):
         Frame.__init__(self, master)
         self.master = master
         self.master.geometry("600x350")
-        self.master.title('IChat')
+        self.master.title(f'IChat;) {self.username} online')
         guiThread = Thread(target=self.updata_gui_loop)
         guiThread.start()
 
@@ -481,15 +541,24 @@ class ChatInterface(Frame, Client):
         # self.color_theme_hacker()
         self.last_sent_label(date="No messages sent.")
         self.color_theme_dark_blue()
+        self.bool = True
         master.mainloop()
         self.client_exit()
-
     def change_to_public_mode(self):
         self.current_id = "public"
         self.current_external_id = "public"
         self.text_box.config(state=NORMAL)
         self.text_box.delete(1.0, END)
         self.text_box.config(state=DISABLED)
+
+     #returns button with this id
+    def button_by_id(self, chat_id):
+        for button in self.buttons:
+            if button.chat_id == chat_id:
+                return button
+
+
+
 
     def last_sent_label(self, date):
 
@@ -570,11 +639,14 @@ class ChatInterface(Frame, Client):
     def send_message(self):
 
         user_input = self.entry_field.get()
-        print(f"current_id={self.current_id}")
+
+        if user_input == "" or user_input is None:
+            return
+
         if self.current_id != "public": # in private chat ...
             msg_to_send = f"private%%%{self.username}%%%{self.current_id}%%%{self.current_external_id}%%%{user_input}"
 
-            print(msg_to_send)
+            #print(msg_to_send)
         if self.current_id == "public":
             msg_to_send = "public%%%" + self.username + "%%%" + user_input
 
@@ -604,8 +676,8 @@ class ChatInterface(Frame, Client):
 
     def client_exit(self):
         msg_to_server = self.username + "%%%NAK"
-        print(len(msg_to_server.split('%%%')))
-        print("msg_to_server = ", msg_to_server)
+        #print(len(msg_to_server.split('%%%')))
+        #print("msg_to_server = ", msg_to_server)
         self.messages_to_send.append(msg_to_server)
         self.send_messages()
         time.sleep(0.01)
@@ -613,7 +685,7 @@ class ChatInterface(Frame, Client):
         pass
     def choose_file(self):
         file_path = filedialog.askopenfilename()
-        print("the file path: " + file_path)
+        #print("the file path: " + file_path)
     def clear_chat(self):
         pass
 
@@ -628,7 +700,7 @@ class ChatInterface(Frame, Client):
         NewChatInterface(self)
         from NewChat import msg
         msg = msg + "," + self.username
-        print("in temp class :"+msg)
+        #print("in temp class :"+msg)
         self.messages_to_send.append(msg)
         self.send_messages()
 
@@ -648,7 +720,9 @@ class ChatInterface(Frame, Client):
 
 
     def decipher(self, message):
+        print(f"message in decipher = {message}")
         if message.split("%%%")[0] == "public":
+
             if self.current_id == "public" and self.current_external_id == "public":
                 self.send_message_insert(self.config_message(message))
 
@@ -657,29 +731,43 @@ class ChatInterface(Frame, Client):
             msg = message.split("%%%")
             username =msg[1]
             id = msg[2]
+            #print(f"id clienttt ={id}")
             msg = msg[3]
+            print(f"username = {username}, id = {id},msg = {msg}")
+            print(f"and the current chat_id the client now = {self.current_id}")
             #TODO: CHECK IF THE CURRENT_ID IS THE SAME AS THE ID FROM THE MSG IF IT IS I NEED TO DISPLAY IT AND IF NOT I NEED TO SIGHN THE CURRENT CHAT
-            print(f"id:{id}\nself.current_id:{self.current_id}")
             if str(self.current_id) == str(id):
                self.send_message_insert(f"{username}: {msg}") # push it to the text box (this is only a confusing name)
 
             else:
                #pass #TODO I CAN USE A LIST OF BUTTONS AND TO USE IT IN ORDER TO MAKE AN ORDER OR TO COLOR THEM IF THE GOT MSGS OR BOTH
                 print ("in else")
+                #print(f"cha id got --- {id}")
+                # for i in self.buttons:
+                #     print(f"ids----{i.chat_id}")
+                self.button_by_id(id).new_msg_arrived()
+                mixer.init()
+                mixer.music.load('pics/msg sound 1.mp3')
+                mixer.music.play()
+
 
 
         elif message.split("%%%")[0] == "new chat":
             msg = message.split("%%%")
-            id = msg[1]
+            chat_id = msg[1]
             external_id = msg[2]
             chat_name = msg[3]
             contacts = msg[4]
-            msgs = msg[5]
+            while self.bool == False:
+                None
             self.buttons_frame = Frame(self.canvas)
             self.buttons_frame.pack(fill=BOTH)
-            b = PrivateChatButton(self.buttons_frame, chat_name, id, external_id, self)
+            b = PrivateChatButton(self.buttons_frame, chat_name, chat_id, external_id, self)
+            print(f"chat_id of the button just created = {b.chat_id}")
             b.pack(padx=10, pady=5, side=TOP)
             print ("chat button created")
+
+            self.buttons.append(b)
 
 
 

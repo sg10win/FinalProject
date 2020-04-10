@@ -7,6 +7,7 @@ from tkinter import ttk
 import sys
 msg = ""
 
+
 class NewChatInterface:
     def __init__(self, ChatInterface):
         self.msg = ""
