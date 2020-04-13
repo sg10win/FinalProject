@@ -38,6 +38,7 @@ class Client():
         self.key = self.my_socket.recv(1024).decode('utf-8').encode()
         print(f"got key{self.key.decode()}")
         self.buttons = []
+        self.button_frames = []
         self.big_data = ""
 
 
@@ -283,12 +284,6 @@ class Client():
                 roots.update()
             except:
                 continue
-        # else:
-        #     dell = Label(roots, text="\n", width=25)
-        #     dell.grid(row=5, column=0)
-        #     roots.update()
-        #     notificationL = Label(roots, text='Fill all and re-password\n(min 6 characters)', bg='firebrick2', width=25)
-        #     notificationL.grid(row=5, column=0)
 
     def send_message(self, message):#to swichhhhhh
         self.messages_to_send.append(message)
@@ -310,26 +305,7 @@ class Client():
             mini_part = self.do_decrypt(self.key, data.encode()).decode()
             message_q.put(mini_part)
         self.big_data = msg_split1[len(msg_split1)-1]
-        # if msg_split1[len(msg_split1)-1] == '':
 
-
-        #
-        # msg_split2 = self.big_data.split("Start_seg")
-        # if len(msg_split1) == len(msg_split2):
-        #     for i in range(len(msg_split1)):
-        #         dt = msg_split1[i].split("Start_seg")[0]
-        #         message_q.put(dt)
-        #     self.big_data = ""
-        # elif len(msg_split1) < len(msg_split2):
-        #     for i in range(len(msg_split1)-1):
-        #         dt = msg_split1[i].split("Start_seg")[0]
-        #         message_q.put(dt)
-        #     self.big_data = "Start_seg" + msg_split1[i + 1]
-        # elif len(msg_split1) > len(msg_split2):
-        #     for i in range(len(msg_split1)-1):
-        #         dt = msg_split1[i].split("Start_seg")[0]
-        #         message_q.put(dt)
-        #     self.big_data =  msg_split1[i + 1]
     def listen_to_server(self):
         while True:
             rlist, wlist, xlist = select.select([self.my_socket], [self.my_socket], [])
@@ -429,7 +405,7 @@ class ChatInterface(Frame, Client):
         # color_theme.add_command(label="Grey", command=self.color_theme_grey)
         color_theme.add_command(label="Blue", command=self.color_theme_dark_blue)
         # color_theme.add_command(label="Pink", command=self.color_theme_pink)
-        # color_theme.add_command(label="Turquoise", command=self.color_theme_turquoise)
+        color_theme.add_command(label="Turquoise", command=self.color_theme_turquoise)
         color_theme.add_command(label="Hacker", command=self.color_theme_hacker)
 
         # all to default
@@ -472,8 +448,8 @@ class ChatInterface(Frame, Client):
         self.canvas.bind_all('<MouseWheel>', _on_mouse)
 
         # reset the view
-        self.canvas.xview_moveto(0)
-        self.canvas.yview_moveto(0)
+        #self.canvas.xview_moveto(0)
+        #self.canvas.yview_moveto(0)
 
 
 
@@ -482,12 +458,12 @@ class ChatInterface(Frame, Client):
         for i in contacts:
             self.buttons_frame = Frame(self.canvas)
             self.buttons_frame.pack(fill=BOTH)
-            self.button_try = Button(self.buttons_frame, text=i, width=10, command=lambda: self.change_to_public_mode())
+            self.button_frames.append(self.buttons_frame)
+            self.button_try = Button(self.buttons_frame, text=i,width=18 ,bg="gray99" ,relief=FLAT, font=self.font, command=lambda: self.change_to_public_mode())
             self.button_try.pack(padx=10, pady=5, side=TOP)
-
         self.text_frame = Frame(self.master, bd=6)
         self.text_frame.pack(expand=True, fill=BOTH)
-
+        self.canvas.configure(background=self.tl_bg2)
         # scrollbar for text box
         self.text_box_scrollbar = Scrollbar(self.text_frame, bd=0)
         self.text_box_scrollbar.pack(fill=Y, side=RIGHT)
@@ -530,7 +506,6 @@ class ChatInterface(Frame, Client):
         # self.emoji_button.pack(side=RIGHT, padx=6, pady=6, ipady=2)
         # self.color_theme_hacker()
         self.last_sent_label(date="No messages sent.")
-        self.color_theme_dark_blue()
         self.bool = True
         master.mainloop()
         self.client_exit()
@@ -551,12 +526,10 @@ class ChatInterface(Frame, Client):
 
 
     def last_sent_label(self, date):
-
         try:
             self.sent_label.destroy()
         except AttributeError:
             pass
-
         self.sent_label = Label(self.entry_frame, font="Verdana 7", text=date, bg=self.tl_bg2, fg=self.tl_fg)
         self.sent_label.pack(side=LEFT, fill=X, padx=3)
 
@@ -564,16 +537,30 @@ class ChatInterface(Frame, Client):
         self.text_box.config(font="Verdana 10")
         self.entry_field.config(font="Verdana 10")
         self.font = "Verdana 10"
+        self.set_font_to_chat_buttons()
 
     def font_change_times(self):
-        self.text_box.config(font="Times")
-        self.entry_field.config(font="Times")
-        self.font = "Times"
+        self.text_box.config(font="Times 11")
+        self.entry_field.config(font="Times 11")
+        self.font = "Times 11"
+        self.set_font_to_chat_buttons()
+
 
     def font_change_fixedsys(self):
         self.text_box.config(font="fixedsys")
         self.entry_field.config(font="fixedsys")
         self.font = "fixedsys"
+        self.set_font_to_chat_buttons()
+
+    def set_font_to_chat_buttons(self):
+        self.button_try.configure(font=self.font)
+        for button in self.buttons:
+            button.font = self.font
+            button.configure(font=button.font)
+
+    def set_color_to_chat_button_frames(self, color):
+        for frame in self.button_frames:
+            frame.configure(background=color)
 
     def color_theme_default(self):
         self.contacts_frame.config(bg="#EEEEEE")
@@ -590,9 +577,28 @@ class ChatInterface(Frame, Client):
         self.tl_bg = "#FFFFFF"
         self.tl_bg2 = "#EEEEEE"
         self.tl_fg = "#000000"
+        self.set_color_to_chat_button_frames("#EEEEEE")
+        self.canvas.configure(background="#EEEEEE")
+
+    def color_theme_turquoise(self):
+        self.contacts_frame.config(bg="#003333")
+        self.master.config(bg="#003333")
+        self.text_frame.config(bg="#003333")
+        self.text_box.config(bg="#669999", fg="#FFFFFF")
+        self.entry_frame.config(bg="#003333")
+        self.entry_field.config(bg="#669999", fg="#FFFFFF", insertbackground="#FFFFFF")
+        self.send_button_frame.config(bg="#003333")
+        self.send_button.config(bg="#669999", fg="#FFFFFF", activebackground="#669999", activeforeground="#FFFFFF")
+        self.sent_label.config(bg="#003333", fg="#FFFFFF")
+
+        self.tl_bg = "#669999"
+        self.tl_bg2 = "#003333"
+        self.tl_fg = "#FFFFFF"
+        self.set_color_to_chat_button_frames("#003333")
+        self.canvas.configure(background="#003333")
 
     def color_theme_hacker(self):
-        #self.contacts_frame.config(bg="red")
+        self.contacts_frame.config(bg="#0F0F0F")
         #self.button_try.config(bd=0)
         #self.canvas.config(bg="#0F0F0F")
         self.master.config(bg="#0F0F0F")
@@ -606,6 +612,8 @@ class ChatInterface(Frame, Client):
         self.tl_bg = "#0F0F0F"
         self.tl_bg2 = "#0F0F0F"
         self.tl_fg = "#33FF33"
+        self.set_color_to_chat_button_frames("#0F0F0F")
+        self.canvas.configure(background="#0F0F0F")
 
     def color_theme_dark_blue(self):
         self.contacts_frame.config(bg="#263b54")
@@ -621,6 +629,8 @@ class ChatInterface(Frame, Client):
         self.tl_bg = "#1c2e44"
         self.tl_bg2 = "#263b54"
         self.tl_fg = "#FFFFFF"
+        self.set_color_to_chat_button_frames("#263b54")
+        self.canvas.configure(background="#263b54")
 
     def default_format(self):
         self.font_change_default()
@@ -752,11 +762,12 @@ class ChatInterface(Frame, Client):
 
             self.buttons_frame = Frame(self.canvas)
             self.buttons_frame.pack(fill=BOTH)
+            self.buttons_frame.configure(background=self.tl_bg2)
             b = PrivateChatButton(self.buttons_frame, chat_name, chat_id, external_id, contacts, new_msgs, self)
             print(f"chat_id of the button just created = {b.chat_id}")
             b.pack(padx=10, pady=5, side=TOP)
             print ("chat button created")
-
+            self.button_frames.append(self.buttons_frame)
             self.buttons.append(b)
 
 

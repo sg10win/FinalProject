@@ -7,7 +7,8 @@ from tkinter import *
 class PrivateChatButton(Button):
 
     def __init__(self, root, chat_name, chat_id, external_id, contacts, new_msgs, client):#todo to add new_msgs parameter to this function
-        Button.__init__(self, root, text=chat_name, command=lambda: self.chat_request(), width=10)
+        self.font = client.font
+        Button.__init__(self, root, text=chat_name,font=self.font, command=lambda: self.chat_request(), width=18 ,bg="gray99" ,relief=FLAT)
         self.client = client
         self.chat_name = chat_name
         self.chat_id = str(chat_id)
@@ -24,7 +25,7 @@ class PrivateChatButton(Button):
         # FIRST THE ID AND THAN THE EXTERNAL
         msg = f"chat request%%%{self.chat_id}%%%{self.external_id}"
         print(f"I want to get the chat id ={self.chat_id}")
-        self.configure(bg="SystemButtonFace")
+        self.configure(bg="gray99")
         self.new_msgs = 0
         self.client.messages_to_send.append(msg)
         self.client.send_messages()
@@ -41,4 +42,3 @@ class PrivateChatButton(Button):
         time.sleep(0.12)
         self.configure(bg="green2")
         self.new_msgs += 1
-
