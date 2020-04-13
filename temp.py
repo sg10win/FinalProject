@@ -35,6 +35,8 @@ class Client():
         self.my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.my_socket.connect(("127.0.0.1", 8080))
         print('Connected to server')
+        self.key = self.my_socket.recv(1024).decode('utf-8').encode()
+        print(f"got key{self.key.decode()}")
         self.buttons = []
         self.big_data = ""
 
@@ -128,9 +130,9 @@ class Client():
                 if self.my_socket in rlist:
                     data = self.my_socket.recv(1024).decode('utf-8').encode()
                     data = data[0:-7][9:]
-                    data = data.split(b"%%%")
-                    key, data = data
-                    data = self.do_decrypt(key, data).decode()
+                    #data = data.split(b"%%%")
+                    #key, data = data
+                    data = self.do_decrypt(self.key, data).decode()
                     #print(data)
                     #print("124"+data)
                     dell = Label(roots, text="\n", width=25)
@@ -180,8 +182,9 @@ class Client():
         print("entered to send msgs")
         for message in self.messages_to_send:
             if not self.wlist == None:
-                key = Fernet.generate_key()#generates new key (bytes object) randomly
-                data = key.decode() + "%%%" + self.do_encrypt(key, message).decode()
+                #key = Fernet.generate_key()#generates new key (bytes object) randomly
+                # data = key.decode() + "%%%" + self.do_encrypt(key, message).decode()
+                data = self.do_encrypt(self.key, message).decode()
                 #print(data)
                 #print(type(data))
                 #print("really sent:" + data)
@@ -246,9 +249,9 @@ class Client():
                 data = data[0:-7][9:]
                 print(f"{data}")
                 #############################################
-                data = data.split("%%%")
-                key,data = data
-                data = self.do_decrypt(key,data.encode())
+                #data = data.split("%%%")
+                #key,data = data
+                data = self.do_decrypt(self.key,data.encode())
                 #print("231"+data.decode())
                 data = data.decode()
                 dell = Label(roots, text="\n", width=25)
@@ -256,7 +259,6 @@ class Client():
                 roots.update()
 
                 if data == "loged-in":
-                    print("BONDY")
                     #print("000")
                     self.username = username
                     notificationL = Label(roots, text=data, bg='SpringGreen2', width=18)
@@ -303,9 +305,9 @@ class Client():
             mini_part = msg_split1[i]
             mini_part = mini_part.split("Start_Seg")[1]
             print(f"mini_part = {mini_part}")
-            key = mini_part.split("%%%")[0]
-            data = mini_part.split("%%%")[1]
-            mini_part = self.do_decrypt(key.encode(), data.encode()).decode()
+            #key = mini_part.split("%%%")[0]
+            data = mini_part#.split("%%%")[1]
+            mini_part = self.do_decrypt(self.key, data.encode()).decode()
             message_q.put(mini_part)
         self.big_data = msg_split1[len(msg_split1)-1]
         # if msg_split1[len(msg_split1)-1] == '':
@@ -341,18 +343,6 @@ class Client():
                     self.my_socket.close()
                     self.is_close = True
                     return
-                # print(f"the data = {data}")
-
-
-                # print(f"data befor decode = {data}")
-                # bol = True
-                # while bol:
-                #     try:
-                #         data = self.do_decrypt(key.encode(), data.encode()).decode()
-                #     except:
-                #         bol=False
-
-                # print(f"data after decode = {data}")
                 self.messages_connected()
 
                 #print(data)
@@ -675,20 +665,20 @@ class ChatInterface(Frame, Client):
         self.send_message()
 
     def client_exit(self):
-        msg_to_server = self.username + "%%%NAK"
-        #print(len(msg_to_server.split('%%%')))
-        #print("msg_to_server = ", msg_to_server)
+        msg_to_server = "NAK%%%"+self.username
+        for btn in self.buttons:
+            msg_to_server = msg_to_server + "%%%" + str(btn.chat_id) + "%%%" + str(btn.new_msgs)
         self.messages_to_send.append(msg_to_server)
         self.send_messages()
-        time.sleep(0.01)
         exit()
         pass
     def choose_file(self):
         file_path = filedialog.askopenfilename()
         #print("the file path: " + file_path)
     def clear_chat(self):
-        pass
-
+        self.text_box.config(state=NORMAL)
+        self.text_box.delete(1.0, END)
+        self.text_box.config(state=DISABLED)
     def save_chat(self):
         pass
 
@@ -741,10 +731,6 @@ class ChatInterface(Frame, Client):
 
             else:
                #pass #TODO I CAN USE A LIST OF BUTTONS AND TO USE IT IN ORDER TO MAKE AN ORDER OR TO COLOR THEM IF THE GOT MSGS OR BOTH
-                print ("in else")
-                #print(f"cha id got --- {id}")
-                # for i in self.buttons:
-                #     print(f"ids----{i.chat_id}")
                 self.button_by_id(id).new_msg_arrived()
                 mixer.init()
                 mixer.music.load('pics/msg sound 1.mp3')
@@ -758,11 +744,15 @@ class ChatInterface(Frame, Client):
             external_id = msg[2]
             chat_name = msg[3]
             contacts = msg[4]
-            while self.bool == False:
+            new_msgs = msg[5]
+            print(f"new_msgs = {new_msgs}")
+
+            while self.bool == False: #wait to load the client graphics
                 None
+
             self.buttons_frame = Frame(self.canvas)
             self.buttons_frame.pack(fill=BOTH)
-            b = PrivateChatButton(self.buttons_frame, chat_name, chat_id, external_id, self)
+            b = PrivateChatButton(self.buttons_frame, chat_name, chat_id, external_id, contacts, new_msgs, self)
             print(f"chat_id of the button just created = {b.chat_id}")
             b.pack(padx=10, pady=5, side=TOP)
             print ("chat button created")
