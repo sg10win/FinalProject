@@ -14,6 +14,8 @@ from tkinter import *
 from NewChat import NewChatInterface
 from cryptography.fernet import Fernet
 from private_chat_buttons import PrivateChatButton
+
+from TopFrame import TopFrameObject
 from pygame import mixer  # Load the popular external library
 
 
@@ -29,8 +31,10 @@ class Client():
         self.wlist = []
         self.is_login = False
         self.is_close = False
+        self.mode = "ENABLE"
         self.current_id = "public"
         self.current_external_id = "public"
+        self.current_chat_name = "public"
         self.username = ""
         self.my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.my_socket.connect(("127.0.0.1", 8080))
@@ -40,6 +44,7 @@ class Client():
         self.buttons = []
         self.button_frames = []
         self.big_data = ""
+        self.last_right_frame = None
 
 
 
@@ -344,6 +349,9 @@ class ChatInterface(Frame, Client):
         commThread = Thread(target=self.listen_to_server)
         commThread.start()
 
+
+
+
         ##################################################
         master = Tk()
         Frame.__init__(self, master)
@@ -352,6 +360,7 @@ class ChatInterface(Frame, Client):
         self.master.title(f'IChat;) {self.username} online')
         guiThread = Thread(target=self.updata_gui_loop)
         guiThread.start()
+        self.right_frame = Frame(master)
 
         # sets default bg for top level windows
         self.tl_bg = "#EEEEEE"
@@ -359,7 +368,7 @@ class ChatInterface(Frame, Client):
         self.tl_fg = "#000000"
         self.font = "Verdana 10"
 
-
+        #self.get_args_from_file("args.txt")
         menu = Menu(self.master)
         self.master.config(menu=menu, bd=5)
         global saved_username
@@ -404,7 +413,7 @@ class ChatInterface(Frame, Client):
         # color_theme.add_command(label="Night", command=self.color_theme_dark)
         # color_theme.add_command(label="Grey", command=self.color_theme_grey)
         color_theme.add_command(label="Blue", command=self.color_theme_dark_blue)
-        # color_theme.add_command(label="Pink", command=self.color_theme_pink)
+        color_theme.add_command(label="Pink", command=self.color_theme_pink)
         color_theme.add_command(label="Turquoise", command=self.color_theme_turquoise)
         color_theme.add_command(label="Hacker", command=self.color_theme_hacker)
 
@@ -456,14 +465,53 @@ class ChatInterface(Frame, Client):
         # just to show how it will look like
         contacts = ["PUBLIC"]
         for i in contacts:
-            self.buttons_frame = Frame(self.canvas)
-            self.buttons_frame.pack(fill=BOTH)
-            self.button_frames.append(self.buttons_frame)
-            self.button_try = Button(self.buttons_frame, text=i,width=18 ,bg="gray99" ,relief=FLAT, font=self.font, command=lambda: self.change_to_public_mode())
+            self.button_frame = Frame(self.canvas)
+            self.button_frame.pack(fill=BOTH)
+            #self.button_frames.append(self.buttons_frame)
+            self.button_try = Button(self.button_frame, text=i,width=18 ,bg="gray99" ,relief=FLAT, font=self.font, command=lambda: self.change_to_public_mode())
             self.button_try.pack(padx=10, pady=5, side=TOP)
-        self.text_frame = Frame(self.master, bd=6)
+
+
+
+
+        self.text_frame = Frame(self.right_frame, bd=0)
         self.text_frame.pack(expand=True, fill=BOTH)
         self.canvas.configure(background=self.tl_bg2)
+
+        # frame contains the current chat name
+        # self.chat_name_frame = Frame(self.master, bd=0)
+        # self.chat_name_frame.pack(fill=BOTH)
+
+
+        # object for all the commands of the top_frame buttons
+        self.top_frame_object = TopFrameObject(self)
+
+        # top frame
+        self.top_frame = Frame(self.text_frame)
+        self.top_frame.pack(side=TOP, fill=X)
+        self.add_chat_contact = Button(self.top_frame,text="+", command=lambda: a(self), width=4, relief=GROOVE,
+                        bg='green',
+                        bd=0, activebackground="#FFFFFF",activeforeground="#000000")
+        self.exit_chat = Button(self.top_frame, text="exit", command=lambda :self.top_frame_object.exit_chat(), width=4, relief=GROOVE,
+                        bg='red',
+                        bd=0, activebackground="#FFFFFF",activeforeground="#000000")
+        self.chat_info_button = Button(self.top_frame, text=self.current_chat_name, command=lambda :self.top_frame_object.chat_info_request(), width=4, relief=GROOVE,
+                        bg='gray99',
+                        bd=0, activebackground="#FFFFFF",activeforeground="#000000")
+        self.link_chat = Button(self.top_frame, text='link',
+                                       command=lambda: self.top_frame_object.link_user_to_chat(), width=4,
+                                       relief=GROOVE,
+                                       bg='blue',
+                                       bd=0, activebackground="#FFFFFF", activeforeground="#000000")
+        self.exit_chat.pack(side=RIGHT, padx=1,pady=1)
+        self.add_chat_contact.pack(side=RIGHT, padx=1,pady=1)
+        self.link_chat.pack(side=RIGHT, padx=1,pady=1)
+        self.chat_info_button.pack(side=TOP, padx=1, pady=1, fill=BOTH)
+
+
+
+
+
         # scrollbar for text box
         self.text_box_scrollbar = Scrollbar(self.text_frame, bd=0)
         self.text_box_scrollbar.pack(fill=Y, side=RIGHT)
@@ -476,7 +524,7 @@ class ChatInterface(Frame, Client):
         self.text_box_scrollbar.config(command=self.text_box.yview)
 
         # frame containing user entry field
-        self.entry_frame = Frame(self.master, bd=1)
+        self.entry_frame = Frame(self.right_frame, bd=1)
         self.entry_frame.pack(side=LEFT, fill=BOTH, expand=True)
 
         # entry field
@@ -484,8 +532,10 @@ class ChatInterface(Frame, Client):
         self.entry_field.pack(fill=X, padx=6, pady=6, ipady=3)
         # self.users_message = self.entry_field.get()
 
+
+
         # frame containing send button and choose file to upload
-        self.send_button_frame = Frame(self.master, bd=0)
+        self.send_button_frame = Frame(self.right_frame, bd=0)
         self.send_button_frame.pack(fill=BOTH)
 
         # send button
@@ -507,11 +557,36 @@ class ChatInterface(Frame, Client):
         # self.color_theme_hacker()
         self.last_sent_label(date="No messages sent.")
         self.bool = True
+        self.right_frame.pack(fill=BOTH ,expand=True)
         master.mainloop()
         self.client_exit()
+    # def get_args_from_file(self, file_name):
+    #     f = open(file_name, "r")
+    #     contents = f.readlines()
+    #     f.close()
+    #     contents = contents[0].split(',')
+    #     self.tl_bg = contents[0]
+    #     self.tl_bg2 = contents[1]
+    #     self.tl_fg = contents[2]
+    #     self.font = contents[3]
+    #     for i in contents:
+    #         print(f"{i}")
+
+    # def write_args_in_file(self, file_name):
+    #     f = open(file_name, "w")
+    #     f.write(f"{self.tl_bg},{self.tl_bg2},{self.tl_fg},{self.font}\n")
+
     def change_to_public_mode(self):
         self.current_id = "public"
         self.current_external_id = "public"
+        self.current_chat_name = "public"
+        self.chat_info_button.configure(text="PUBLIC")
+        self.text_box.config(state=NORMAL)
+        self.text_box.delete(1.0, END)
+        self.text_box.config(state=DISABLED)
+
+    def disable(self):
+        self.mode = "DISABLE"
         self.text_box.config(state=NORMAL)
         self.text_box.delete(1.0, END)
         self.text_box.config(state=DISABLED)
@@ -521,7 +596,6 @@ class ChatInterface(Frame, Client):
         for button in self.buttons:
             if button.chat_id == chat_id:
                 return button
-
 
 
 
@@ -578,7 +652,9 @@ class ChatInterface(Frame, Client):
         self.tl_bg2 = "#EEEEEE"
         self.tl_fg = "#000000"
         self.set_color_to_chat_button_frames("#EEEEEE")
+        self.button_frame.configure(background="#EEEEEE")
         self.canvas.configure(background="#EEEEEE")
+        #self.write_args_in_file("args.txt")
 
     def color_theme_turquoise(self):
         self.contacts_frame.config(bg="#003333")
@@ -595,7 +671,9 @@ class ChatInterface(Frame, Client):
         self.tl_bg2 = "#003333"
         self.tl_fg = "#FFFFFF"
         self.set_color_to_chat_button_frames("#003333")
+        self.button_frame.configure(background="#003333")
         self.canvas.configure(background="#003333")
+        #self.write_args_in_file("args.txt")
 
     def color_theme_hacker(self):
         self.contacts_frame.config(bg="#0F0F0F")
@@ -613,7 +691,9 @@ class ChatInterface(Frame, Client):
         self.tl_bg2 = "#0F0F0F"
         self.tl_fg = "#33FF33"
         self.set_color_to_chat_button_frames("#0F0F0F")
+        self.button_frame.configure(background="#0F0F0F")
         self.canvas.configure(background="#0F0F0F")
+        #self.write_args_in_file("args.txt")
 
     def color_theme_dark_blue(self):
         self.contacts_frame.config(bg="#263b54")
@@ -630,7 +710,25 @@ class ChatInterface(Frame, Client):
         self.tl_bg2 = "#263b54"
         self.tl_fg = "#FFFFFF"
         self.set_color_to_chat_button_frames("#263b54")
+        self.button_frame.configure(background="#263b54")
         self.canvas.configure(background="#263b54")
+        #self.write_args_in_file("args.txt")
+
+    # Pink
+    def color_theme_pink(self):
+        self.master.config(bg="#ffc1f2")
+        self.text_frame.config(bg="#ffc1f2")
+        self.text_box.config(bg="#ffe8fa", fg="#000000")
+        self.entry_frame.config(bg="#ffc1f2")
+        self.entry_field.config(bg="#ffe8fa", fg="#000000", insertbackground="#000000")
+        self.send_button_frame.config(bg="#ffc1f2")
+        self.send_button.config(bg="#ffe8fa", fg="#000000", activebackground="#ffe8fa", activeforeground="#000000")
+        self.sent_label.config(bg="#ffc1f2", fg="#000000")
+
+        self.tl_bg = "#ffe8fa"
+        self.tl_bg2 = "#ffc1f2"
+        self.tl_fg = "#000000"
+        #self.write_args_in_file("args.txt")
 
     def default_format(self):
         self.font_change_default()
@@ -697,12 +795,14 @@ class ChatInterface(Frame, Client):
         return msg[1] + ': ' + msg[2]
 
     def open_new_chat_window(self):
+        self.last_right_frame = self.right_frame
         NewChatInterface(self)
-        from NewChat import msg
-        msg = msg + "," + self.username
+        #from NewChat import msg
+        #msg = msg + "," + self.username
         #print("in temp class :"+msg)
-        self.messages_to_send.append(msg)
-        self.send_messages()
+        #self.messages_to_send.append(msg)
+        print(self.mode)
+        # self.send_messages()
 
     def updata_gui_loop(self):
         while True:
@@ -723,7 +823,7 @@ class ChatInterface(Frame, Client):
         print(f"message in decipher = {message}")
         if message.split("%%%")[0] == "public":
 
-            if self.current_id == "public" and self.current_external_id == "public":
+            if self.current_id == "public" and self.current_external_id == "public" and self.mode == "ENABLE":
                 self.send_message_insert(self.config_message(message))
 
         elif message.split("%%%")[0] == "private":
@@ -736,8 +836,11 @@ class ChatInterface(Frame, Client):
             print(f"username = {username}, id = {id},msg = {msg}")
             print(f"and the current chat_id the client now = {self.current_id}")
             #TODO: CHECK IF THE CURRENT_ID IS THE SAME AS THE ID FROM THE MSG IF IT IS I NEED TO DISPLAY IT AND IF NOT I NEED TO SIGHN THE CURRENT CHAT
-            if str(self.current_id) == str(id):
+            if str(self.current_id) == str(id) and self.mode == "ENABLE":
                self.send_message_insert(f"{username}: {msg}") # push it to the text box (this is only a confusing name)
+               mixer.init()
+               mixer.music.load('pics/clearly.mp3')
+               mixer.music.play()
 
             else:
                #pass #TODO I CAN USE A LIST OF BUTTONS AND TO USE IT IN ORDER TO MAKE AN ORDER OR TO COLOR THEM IF THE GOT MSGS OR BOTH
@@ -756,10 +859,8 @@ class ChatInterface(Frame, Client):
             contacts = msg[4]
             new_msgs = msg[5]
             print(f"new_msgs = {new_msgs}")
-
             while self.bool == False: #wait to load the client graphics
                 None
-
             self.buttons_frame = Frame(self.canvas)
             self.buttons_frame.pack(fill=BOTH)
             self.buttons_frame.configure(background=self.tl_bg2)
@@ -771,6 +872,9 @@ class ChatInterface(Frame, Client):
             self.buttons.append(b)
 
 
+
+def a (client):
+    pass
 
 
 
@@ -785,8 +889,4 @@ def all_children(root):
 
 if __name__ == '__main__':
     roots = Tk()
-    # c = Client(roots)
-    # c.Signup(c.get_roots())
-    # roots = Tk()
-    # chat = ChatInterface(c.my_socket, master=roots)
     chat = ChatInterface(master=roots)

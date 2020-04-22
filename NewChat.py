@@ -10,6 +10,7 @@ msg = ""
 
 class NewChatInterface:
     def __init__(self, ChatInterface):
+        self.ChatInterface = ChatInterface
         self.msg = ""
         self.tl_bg = ChatInterface.tl_bg
         self.tl_bg2 = ChatInterface.tl_bg2
@@ -56,12 +57,17 @@ class NewChatInterface:
             text_boxR.insert(END, "the chat was created.")
             text_boxR.see(END)
             text_boxR.configure(state=DISABLED)
-            global msg
-            msg = "create chat%%%"+name+"%%%"+added
+            #global msg
+            msg = "create chat%%%"+name+"%%%"+added+","+self.ChatInterface.username
+            self.ChatInterface.messages_to_send.append(msg)
+            self.ChatInterface.send_messages()
             print(msg)
-            time.sleep(0.5)
-            root.quit()
             root.destroy()
+            self.last_frame.pack(fill=BOTH, expand=True)
+            self.ChatInterface.text_box.configure(state=NORMAL)
+            self.ChatInterface.text_box.delete(1.0, END)
+            self.ChatInterface.text_box.configure(state=DISABLED)
+            #######
 
 
     def remove(self, text_boxL, combobox ,text_boxR):
@@ -75,7 +81,7 @@ class NewChatInterface:
             try:
                 text_boxL.insert(END, "\n".join(self.added))
             except:
-                print
+                pass
             text_boxL.configure(state=DISABLED)
             text_boxR.configure(state=NORMAL)
             text_boxR.delete("1.0", END)
@@ -89,7 +95,7 @@ class NewChatInterface:
             text_boxR.configure(state=DISABLED)
 
     def add(self, text_boxL, combobox, text_boxR):
-        print("combobox.get() =|"+combobox.get()+"|")
+
         if not combobox.get() == "":
             contact = combobox.get()
             if combobox.get() not in self.added:
@@ -111,29 +117,35 @@ class NewChatInterface:
                 combobox.set('')
 
     def cancel(self, root):
-        root.destroy
+        root.destroy()
+        self.last_frame.pack(fill=BOTH, expand=True)
+        self.ChatInterface.text_box.configure(state=NORMAL)
+        self.ChatInterface.text_box.delete(1.0, END)
+        self.ChatInterface.text_box.configure(state=DISABLED)
+        #
+        #
+        #######
+
 
     def new_chat (self):
-        root = Tk()
-        root.title("New Chat")
-        root.geometry("538x242")
-        root.resizable(False, False)
+        self.ChatInterface.mode = "DISABLE"
+        self.last_frame = self.ChatInterface.right_frame
+        self.ChatInterface.last_right_frame = self.last_frame
+        root = Frame(self.ChatInterface.master)
+        self.ChatInterface.right_frame = root
+        self.last_frame.pack_forget()
+        root.pack(fill=BOTH, expand=True)
+
 
         labelTopL = ttk.Label(root,text="add here: ")
         labelTopL.grid(column=0, row=1)
         comboExampleL = ttk.Combobox(root,width=28,
-                                    values=[
-                                        "January",
-                                        "February",
-                                        "March"])
+                                    values=[])
         comboExampleL.grid(column=0, row=2)
         labelTopR = ttk.Label(root, text="remove here: ")
         labelTopR.grid(column=2, row=1)
         comboExampleR = ttk.Combobox(root,width=33,
-                                    values=[
-                                        "January",
-                                        "February",
-                                        "April"])
+                                    values=[])
         comboExampleR.grid(column=2, row=2)
 
         text_frameL = Frame(root, bd=6)
@@ -162,7 +174,7 @@ class NewChatInterface:
         createB = Button(root, text="create",relief=GROOVE, bg='white', bd=1, command=lambda: self.create(nameE, text_boxL, text_box, root))
         createB.grid(column=2, row=4)
         cancelB = Button(root, text="cancel",relief=GROOVE, bg='white',
-                                  bd=1, command=lambda:self.cancel)
+                                  bd=1, command=lambda:self.cancel(root))
         cancelB.grid(column=0, row=4)
         addB = Button(root, text="add", command=lambda: self.add(text_boxL, comboExampleL, text_box),relief=GROOVE, bg='white', bd=1)
         addB.grid(column=1, row=2)

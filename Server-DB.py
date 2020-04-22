@@ -16,12 +16,6 @@ class Client(object):
         self._socket = socket
         self._key = key
 
-    # def send(self, message):
-    #     self._socket.send(message.encode('utf-8'))
-    #
-    # def recv(self):
-    #     return self._socket.recv(1024).decode('utf-8')
-
     def get_username(self):
         return self._username
 
@@ -178,14 +172,15 @@ class Server(object):
         self.db["chats"].create({
             "id": int,
             "name": str,
-            "contacts": str,
             "msgs": str,
+            "contacts": str,
             "user_id": int,
             "external_id": int,
-            "new_msgs": int},
+            "new_msgs": int,
+            "managers_id": str,
+            "is_linked": bool},
             pk="id"
             )
-        # self.conn.close
 
     def msg_maker(self, data, list_of_sockets_to_send):  # the type is 's'-signup, 'l'-login, 'm'-msg, **'f'-file**
         #print(data)
@@ -266,7 +261,11 @@ class Server(object):
 
 
     def create_new_chat(self, chat_name, contacts):
-
+        creator_username = contacts[-1]
+        _ids = self.get_column_from_db("id", self.db["users"])
+        for _id in _ids:
+            if self.db["users"].get(_id)["username"] == creator_username:
+                creator_id = str(_id)
         new_chat_msg = 'IChat Server: you were added to this chat'
         # list of right contacts only
         all_usernames = self.get_column_from_db("username",self.db["users"])#list of all the usernames in the db
@@ -282,7 +281,7 @@ class Server(object):
             username = self.db["users"].get(user_id)["username"]
             if username in usernames:
                 self.db["chats"].insert({"id": self.last_id, "name": chat_name, "msgs": new_chat_msg, "contacts": contacts
-                                            , "user_id": user_id, "external_id": random_external_id, "new_msgs": 1})
+                                            , "user_id": user_id, "external_id": random_external_id, "new_msgs": 1, "managers_id": creator_id})
                 print(f"created this chat now=>{self.db['chats'].get(self.last_id)}")
                 if username in self.clients.get_usernames():
                     list_client = [self.clients.get_socket(username)]
@@ -304,6 +303,11 @@ class Server(object):
         sender_chat_id = msg[2]
         external_id = msg[3]
         msg = msg[4]
+
+        managers_ids = self.db["chats"].get(int(sender_chat_id))["managers_id"]
+        managers_ids = managers_ids.split(',')
+
+
         for chat_id in self.get_column_from_db("id",self.db["chats"]):
             if self.db["chats"].get(chat_id)["external_id"] == int(external_id):
                 print("in if 1")
@@ -311,6 +315,8 @@ class Server(object):
                     print("in if 2")
                     previous_msgs = self.db["chats"].get(chat_id)["msgs"]
                     msgs = f"{previous_msgs}\n{username}: {msg}"
+                    if sender_chat_id in managers_ids:
+                        msgs = f"{previous_msgs}\n@{username}: {msg}"
                     self.db["chats"].update(chat_id, {"msgs": msgs})
                     username_that_want_the_msg = self.db["users"].get(self.db["chats"].get(chat_id)["user_id"])["username"]
                     if username_that_want_the_msg not in self.clients.get_usernames(): # the client isn't online
@@ -409,14 +415,13 @@ class Server(object):
         if boolean == True:
             #print("dict before :", self.open_client_sockets)
             self.clients.set_username(current_socket, username)
-
+            current_id = None
             for i in self.get_column_from_db("id", self.db["users"]):
                 if self.db["users"].get(i)["username"] == username:
                     current_id = i
                     break
             for chat_id in self.get_column_from_db("id", self.db["chats"]):
                 if self.db["chats"].get(chat_id)["user_id"] == current_id:
-                    print("BROOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
                     chat_id = self.db["chats"].get(chat_id)["id"]
                     chat_external_id = self.db["chats"].get(chat_id)["external_id"]
                     chat_name = self.db["chats"].get(chat_id)["name"]
@@ -460,9 +465,6 @@ class Server(object):
                 return False
 
 
-
-
-
     def check_client_exit(self, data):
         if len(data.split(b'%%%')) == 2:
             tmp = data.split(b'%%%')
@@ -497,14 +499,16 @@ class Server(object):
             username = data[1]
             self.update_db_after_client_NAK(data)
             self.clients.remove_client(username)
+        elif data.split(b'%%%')[0].decode('utf-8') == "exit chat":
+            print("got exit chat request")
+            data = data.decode("utf-8").split("%%%")
+            username = data[1]
+            chat_external_id = data[2]
+            chat_id = data[3]
+            self.remove_client_from_chat(username, chat_external_id, chat_id)
 
-#        if len(data.split(b'%%%')) == 2:
- #           tmp = data.split(b'%%%')
-  #          if tmp[1] == b'NAK':
-   #             #print(tmp[0].decode("utf-8") + " has logedout")
-    #            self.clients.remove_client(tmp[0].decode('utf-8'))
-                #print('exit client: ', tmp[0].decode('utf-8'))
-
+        elif data.split(b'%%%')[0].decode('utf-8') == "chat info":
+            print("got chat info request")
         elif len(data.split(b'%%%')) == 3:
             #print("322"+data.decode('utf-8'))
             temp = data.decode('utf-8').split("%%%")
@@ -516,10 +520,7 @@ class Server(object):
                 self.send_messages_without_sender(msg, socket_sender)
             if command == "create chat":
                 chat_name = temp[1]
-                #print("332 temp[2] = "+temp[2])
                 contacts = temp[2].split(",")#the self username
-                #print(str(contacts))
-                #print("contacts = "+str(contacts))
                 self.create_new_chat(chat_name, contacts)
             if command == "chat request":
                 chat_id = temp[1]
@@ -534,9 +535,16 @@ class Server(object):
                 sockets_list_to_send = []
                 sockets_list_to_send.append(current_socket)
                 self.msg_maker(msg_to_send, sockets_list_to_send)
+        elif len (data.split(b'%%%')) == 4:
+            data = data.decode('utf-8').split("%%%")
+            command = data[0]
+            if command == "new link":
+                chat_external_id = data[1]
+                manager_chat_id = data[2]
+                username_to_link = data[3]
 
-
-        elif len(data.split(b'%%%')) == 5:# this is a private msg condition
+        elif len(data.split(b'%%%')) == 5:
+            # this is a private msg condition
             data = data.decode('utf-8')
             # save the new msgs in db---
             self.save_msg_in_db1(data)
@@ -548,7 +556,19 @@ class Server(object):
             external_id = data[3]
             msg = data[4]
 
+            manager = False
+            sender_id = ""
+            for i in self.get_column_from_db("id", self.db["users"]):
+                if self.db["users"].get(i)["username"] == sender_username:
+                    sender_id = str(i)
+            managers = self.db["chats"].get(int(sender_chat_id))["managers_id"].split(",")
+            if sender_id in managers:
+                manager = True
 
+
+
+            managers_ids = self.db["chats"].get(int(sender_chat_id))["managers_id"]
+            managers_ids = managers_ids.split(',')
             #SENDS THE MSG TO THE CHAT CONTACTS AND TO SAVE IT IN THE DB
             list_of_sockets_to_send = []
             #list_of_contacts = self.get_list_of_contacts(external_id)
@@ -576,9 +596,10 @@ class Server(object):
                         if str(self.db["chats"].get(id)["user_id"]) == str(id_of_username) and str(self.db["chats"].get(id)["external_id"]) == str(external_id):
                             c = id
                             break
-
-
-                    self.msg_maker(f"private%%%{sender_username}%%%{c}%%%{msg}", sockets)
+                    if manager:
+                        self.msg_maker(f"private%%%@{sender_username}%%%{c}%%%{msg}", sockets)
+                    else:
+                        self.msg_maker(f"private%%%{sender_username}%%%{c}%%%{msg}", sockets)
 
 
     def send_messages_without_sender(self, message, sender):
@@ -613,6 +634,35 @@ class Server(object):
             #print("dict before :", self.open_client_sockets)
             # self.open_client_sockets.__delitem__(curret_socket)
             #print("dict after :", self.open_client_sockets)
+
+
+
+    def remove_client_from_chat(self, username, _chat_external_id, _chat_id):
+        if _chat_id == 'public' or _chat_external_id == "public":
+            return
+        chat_ids = self.get_column_from_db("id", self.db["chats"])
+        contacts_in_chat_before_remove = self.db["chats"].get(_chat_id)["contacts"].split(",")
+        contacts_in_chat_before_remove.remove(username)
+
+        contacts_in_chat_after_remove = ','.join(contacts_in_chat_before_remove)
+        msg_to_save = f"private%%%Server%%%{_chat_id}%%%{_chat_external_id}%%%{username} left"
+        self.save_msg_in_db1(msg_to_save)
+        for chat_id in chat_ids:
+            chat = self.db["chats"].get(chat_id)
+            if str(chat['external_id']) == _chat_external_id:
+                chat.update({"contacts": contacts_in_chat_after_remove})
+                if self.db["users"].get(chat["user_id"])["username"] in self.clients.get_usernames() and self.db["users"].get(chat["user_id"])["username"] != username:
+                    msg_to_send = f"private%%%Server%%%{chat_id}%%%{username} left"
+                    self.msg_maker(msg_to_send, [self.clients.get_socket(self.db["users"].get(chat["user_id"])["username"])])
+            if str(chat['id']) == _chat_id:
+                self.db["chats"].delete(chat_id)
+                break
+
+
+
+
+
+
 
 
 Server().run()
