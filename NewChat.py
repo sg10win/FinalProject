@@ -36,10 +36,10 @@ class NewChatInterface:
         name = nameE.get()
         added = self.added
         name = self.filter(name)
-        if name == "":
+        if name == "" or ',' in name:
             text_boxR.configure(state=NORMAL)
             text_boxR.delete('1.0', END)
-            text_boxR.insert(END, "invalid chat name.")
+            text_boxR.insert(END, "Invalid chat name.\nNo ',' allow")
             text_boxR.see(END)
             text_boxR.configure(state=DISABLED)
             return
@@ -58,15 +58,16 @@ class NewChatInterface:
             text_boxR.see(END)
             text_boxR.configure(state=DISABLED)
             #global msg
-            msg = "create chat%%%"+name+"%%%"+added+","+self.ChatInterface.username
+            msg = "create chat+*!?"+name+"+*!?"+added+","+self.ChatInterface.username
             self.ChatInterface.messages_to_send.append(msg)
             self.ChatInterface.send_messages()
             print(msg)
-            root.destroy()
-            self.last_frame.pack(fill=BOTH, expand=True)
-            self.ChatInterface.text_box.configure(state=NORMAL)
-            self.ChatInterface.text_box.delete(1.0, END)
-            self.ChatInterface.text_box.configure(state=DISABLED)
+            self.cancel(root)
+            # root.destroy()
+            # self.last_frame.pack(fill=BOTH, expand=True)
+            # self.ChatInterface.text_box.configure(state=NORMAL)
+            # self.ChatInterface.text_box.delete(1.0, END)
+            # self.ChatInterface.text_box.configure(state=DISABLED)
             #######
 
 
@@ -117,11 +118,15 @@ class NewChatInterface:
                 combobox.set('')
 
     def cancel(self, root):
-        root.destroy()
+        #self.nameE.insert(0, "")
+        self.ChatInterface.right_frame = self.last_frame
+        root.pack_forget()
         self.last_frame.pack(fill=BOTH, expand=True)
         self.ChatInterface.text_box.configure(state=NORMAL)
         self.ChatInterface.text_box.delete(1.0, END)
         self.ChatInterface.text_box.configure(state=DISABLED)
+
+
         #
         #
         #######
@@ -136,23 +141,24 @@ class NewChatInterface:
         self.last_frame.pack_forget()
         root.pack(fill=BOTH, expand=True)
 
-
-        labelTopL = ttk.Label(root,text="add here: ")
-        labelTopL.grid(column=0, row=1)
-        comboExampleL = ttk.Combobox(root,width=28,
+        left = Frame(root)
+        left.grid(column=0)
+        #labelTopL = ttk.Label(root,text="add here: ")
+        #labelTopL.grid(column=0, row=1)
+        comboExampleL = ttk.Combobox(left,width=28,
                                     values=[])
         comboExampleL.grid(column=0, row=2)
-        labelTopR = ttk.Label(root, text="remove here: ")
-        labelTopR.grid(column=2, row=1)
-        comboExampleR = ttk.Combobox(root,width=33,
+        #labelTopR = ttk.Label(root, text="remove here: ")
+        #labelTopR.grid(column=0, row=2)
+        comboExampleR = ttk.Combobox(left,width=28,
                                     values=[])
-        comboExampleR.grid(column=2, row=2)
+        comboExampleR.grid(column=0, row=3)
 
-        text_frameL = Frame(root, bd=6)
-        text_frameL.grid(column=0,row=3, ipadx=20 , ipady=50)
+        text_frameL = Frame(left, bd=0)
+        text_frameL.grid(column=0,row=4, ipadx=20 , ipady=50)
 
-        text_frameR = Frame(root, bd=6)
-        text_frameR.grid(column=2, row=3, ipadx=55, ipady=25, pady=0)
+        text_frameR = Frame(root, bd=0)
+        text_frameR.grid(column=1, row=0,sticky="w")
 
         # scrollbar for text box
         text_box_scrollbarL = Scrollbar(text_frameL, bd=0)
@@ -162,29 +168,36 @@ class NewChatInterface:
 
         # contains messages
         text_boxL = Text(text_frameL, yscrollcommand=text_box_scrollbarL.set, state=DISABLED,
-                             bd=1, padx=6, pady=6, spacing3=8, wrap=WORD, bg=None, font="Verdana 10", relief=GROOVE,
+                             bd=0, padx=6, pady=6, spacing3=8, wrap=WORD, bg=None, font="Verdana 10", relief=GROOVE,
                              width=15, height=1)
         text_boxL.pack(expand=True, fill=BOTH)
         text_box_scrollbarL.config(command=text_boxL.yview)
 
         text_box = Text(text_frameR, state=DISABLED,
-                        bd=1, padx=6, pady=6, spacing3=8, wrap=WORD, bg=None, font="Verdana 10", relief=GROOVE,
-                        width=5, height=1)
-        text_box.pack(expand=True, fill=BOTH)
-        createB = Button(root, text="create",relief=GROOVE, bg='white', bd=1, command=lambda: self.create(nameE, text_boxL, text_box, root))
-        createB.grid(column=2, row=4)
-        cancelB = Button(root, text="cancel",relief=GROOVE, bg='white',
-                                  bd=1, command=lambda:self.cancel(root))
-        cancelB.grid(column=0, row=4)
-        addB = Button(root, text="add", command=lambda: self.add(text_boxL, comboExampleL, text_box),relief=GROOVE, bg='white', bd=1)
+                        width=15,bd=0, padx=6, pady=6, spacing3=8, wrap=WORD, bg=None, font="Verdana 10", relief=GROOVE, height=5)
+        text_box.pack()
+        createB = Button(left, width=10, text="create",relief=FLAT, bg='green2', bd=0, command=lambda: self.create(nameE, text_boxL, text_box, root))
+        createB.grid(column=1, row=6, sticky="w")
+        cancelB = Button(left, width=10, text="cancel",relief=FLAT, bg='red',
+                                  bd=0, command=lambda:self.cancel(root))
+        cancelB.grid(column=0, row=6)
+        addB = Button(left, text="add", command=lambda: self.add(text_boxL, comboExampleL, text_box),relief=FLAT, bg="green2", bd=0, width=6)
         addB.grid(column=1, row=2)
-        removeB = Button(root, text="remove",relief=GROOVE, bg='white', bd=1, command=lambda: self.remove(text_boxL,comboExampleR,text_box))
-        removeB.grid(column=4, row=2)
+        removeB = Button(left, text="remove",relief=FLAT, bg='red', bd=0, command=lambda: self.remove(text_boxL,comboExampleR,text_box))
+        removeB.grid(column=1, row=3)
 
-        nameL = Label(text_frameR, text="chat name: ")
-        nameE = Entry(text_frameR, width=18)
-        nameE.pack(side=BOTTOM)
-        nameL.pack(side=BOTTOM)
+        #nameL = Label(left, text="Chat name: ")
+        nameE = Entry(left,width=30,text="Chat name")
+        nameE.grid(column=0, row=5, sticky="w")
+        #nameL.grid(column=0, row=5,sticky="w")
+
+
+        #
+
+
+
+
+
 
 
         #colors and fonts
@@ -193,16 +206,30 @@ class NewChatInterface:
         text_frameL.config(bg=self.tl_bg2)
         text_boxL.config(bg=self.tl_bg, fg=self.tl_fg, font=self.font)
         text_box.config(bg=self.tl_bg, fg=self.tl_fg, font=self.font)
-        createB.config(bg=self.tl_bg, fg=self.tl_fg, activebackground=self.tl_bg, activeforeground=self.tl_fg, font=self.font)
-        removeB.config(bg=self.tl_bg, fg=self.tl_fg, activebackground=self.tl_bg, activeforeground=self.tl_fg, font=self.font)
-        addB.config(bg=self.tl_bg, fg=self.tl_fg, activebackground=self.tl_bg, activeforeground=self.tl_fg, font=self.font)
-        cancelB.config(bg=self.tl_bg, fg=self.tl_fg, activebackground=self.tl_bg, activeforeground=self.tl_fg, font=self.font)
-        labelTopL.config(background=self.tl_bg, foreground=self.tl_fg, font=self.font)
-        labelTopR.config(background=self.tl_bg, foreground=self.tl_fg, font=self.font )
-        nameL.config(background=self.tl_bg, foreground=self.tl_fg, font=self.font)
+        left.config(bg=self.tl_bg2)
+        #createB.config(bg=self.tl_bg, fg=self.tl_fg, activebackground=self.tl_bg, activeforeground=self.tl_fg, font=self.font)
+        #removeB.config(bg=self.tl_bg, fg=self.tl_fg, activebackground=self.tl_bg, activeforeground=self.tl_fg, font=self.font)
+        #addB.config(bg=self.tl_bg, fg=self.tl_fg, activebackground=self.tl_bg, activeforeground=self.tl_fg, font=self.font)
+        #cancelB.config(bg=self.tl_bg, fg=self.tl_fg, activebackground=self.tl_bg, activeforeground=self.tl_fg, font=self.font)
+        #labelTopL.config(background=self.tl_bg, foreground=self.tl_fg, font=self.font)
+        #labelTopR.config(background=self.tl_bg, foreground=self.tl_fg, font=self.font )
+        #nameL.config(background=self.tl_bg, foreground=self.tl_fg, font=self.font)
         #comboExampleL.config(background=self.tl_bg, foreground=self.tl_fg, activebackground=self.tl_bg, activeforeground=self.tl_fg)
         #comboExampleR.config(background=self.tl_bg, foreground=self.tl_fg, activebackground=self.tl_bg, activeforeground=self.tl_fg)
         root.mainloop()
+def on_entry_click(event, entry, text):
+    """function that gets called whenever entry is clicked"""
+    if entry.get() == text:
+       entry.delete(0, "end") # delete all the text in the entry
+       entry.insert(0, '') #Insert blank for user input
+       entry.config(fg = 'black')
+def on_focusout(event, entry, text):
+    if entry.get() == '':
+        entry.insert(0, text)
+        entry.config(fg = 'grey')
+
+
+
 
 def list_to_str (list,str):
     print(list)

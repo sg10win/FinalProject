@@ -1,43 +1,30 @@
-import socket
-from tkinter import filedialog
-from tkinter import *
-import sys
-from tkinter.filedialog import FileDialog
-import sys
-from cryptography.fernet import Fernet
+import tkinter as tk
+from PIL import Image
+import os
+
+def execute_file(file_name):
+    os.startfile(file_name)
+
+def add_image():
+    #text.image_create(tk.END, image = img) # Example 1
+    text.window_create(tk.END, window = tk.Button(text, image = img, command=lambda: execute_file("Andromeda-Galaxy.gif"))) # Example 2
 
 
-def do_decryption(key,data):
-    f = Fernet(key)
-    decoded_data = f.decrypt(data)
-    return decoded_data
+    text.insert(1.0,"new image", tk.END)
 
+root = tk.Tk()
 
-s = socket.socket()
-s.bind(("localhost",9999))
-s.listen(10) # Acepta hasta 10 conexiones entrantes.
-sc, address = s.accept()
+text = tk.Text(root)
+text.pack(padx = 2, pady = 2)
 
-print (address)
+tk.Button(root, text = "Insert", command = add_image).pack()
 
-key = sc.recv(1024) #byte object
-print(key)
-i=1
-f = open('C:/Users/USER/PycharmProjects/Newww/transfered/file_'+ str(i)+".jpeg",'wb') # Open in binary
-i=i+1
+img = tk.PhotoImage(file = "Andromeda-Galaxy1.gif")
 
-
-while (True):
-
-    # Recibimos y escribimos en el fichero
-    global l
-    l = sc.recv(1024)
-    while (l):
-
-        f.write(do_decryption(key, l))
-        l = sc.recv(1024)
-f.close()
-
-sc.close()
-s.close()
-sys.exit()
+basewidth = 300
+img2 = Image.open('Andromeda-Galaxy.gif')
+wpercent = (basewidth / float(img2.size[0]))
+hsize = int((float(img2.size[1]) * float(wpercent)))
+img2 = img2.resize((basewidth, hsize), Image.ANTIALIAS)
+img2.save('Andromeda-Galaxy1.gif')
+root.mainloop()

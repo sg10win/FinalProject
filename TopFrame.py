@@ -12,10 +12,19 @@ class TopFrameObject():
     # this function is for the info button
     def chat_info_request(self):
         # TODO here I can make a better graphics option then to desplay it on the textbox
-
+        if self.client.current_id == "public":
+            public_chat_info_msg = "This is a public chat.\nAll the system's clients can get and send msgs here"
+            self.client.text_box.config(state=NORMAL)
+            self.client.text_box.delete(1.0, END)
+            print("gg")
+            self.client.text_box.insert(END, public_chat_info_msg+'\n')
+            print("tt")
+            self.client.text_box.config(state=DISABLED)
+            self.client.mode = "DISABLE"
+            return
         # for now i write the info in the textbox
         self.client.disable()
-        msg = "chat info%%%"+f"{self.client.current_external_id}"
+        msg = "chat info+*!?"+f"{self.client.current_id}"
         self.client.messages_to_send.append(msg)
         self.client.send_messages()
         print("done")
@@ -24,7 +33,7 @@ class TopFrameObject():
         # starts with a warning msg
         ans = messagebox.askokcancel("IChat", "Are you sure you want to leave this chat?")
         if ans:
-            msg = f"exit chat%%%{self.client.username}%%%{self.client.current_external_id}%%%{self.client.current_id}"
+            msg = f"exit chat+*!?{self.client.username}+*!?{self.client.current_external_id}+*!?{self.client.current_id}"
             self.client.messages_to_send.append(msg)
             self.client.send_messages()
             self.client.text_box.config(state=NORMAL)
@@ -58,10 +67,11 @@ class TopFrameObject():
 
     def send_the_link_msg(self, entry):
         username_to_link = entry.get()
+        print(username_to_link)
         if username_to_link:
             chat_external_id = self.client.current_external_id
             manager_chat_id = self.client.current_id
-            msg = f"new link%%%{chat_external_id}%%%{manager_chat_id}%%%{username_to_link}"
+            msg = f"new link+*!?{chat_external_id}+*!?{manager_chat_id}+*!?{username_to_link}"
             self.client.messages_to_send.append(msg)
             self.client.send_messages()
             print(f'{msg}')

@@ -8,7 +8,7 @@ import select
 from queue import Queue
 from threading import *
 from tkinter import filedialog
-
+import base64
 from PIL import ImageTk,Image
 from tkinter import *
 from NewChat import NewChatInterface
@@ -117,7 +117,7 @@ class Client():
             hashed_re_password = (hashlib.md5(re_pwordE.get().encode())).hexdigest()
             #print("Hashed password = ", hashed_password)
             #print("hashed re-password = ", hashed_re_password)
-            msg_to_server = email + "%%%" + username + "%%%" + hashed_password
+            msg_to_server = email + "+*!?" + username + "+*!?" + hashed_password
             #print("msg_to_server = ", msg_to_server)
             self.messages_to_send.append(msg_to_server)
             # try:
@@ -182,7 +182,24 @@ class Client():
     def do_encrypt(self, key, data):  # the params are byte object. return byte object
         f = Fernet(key)
         #print(f.encrypt(data.encode()))
-        return f.encrypt(data.encode())
+        if isinstance(data, str):
+            data = data.encode()
+        return f.encrypt(data)
+
+
+    # def split_msg(self, msg):
+    #     max_packeg_size = 1024
+    #     i = 0
+    #     list_msgs = []
+    #     while i < len(msg):
+    #         if i % 1024 == 0:
+    #             list_msgs.append('')
+    #         list_msgs[-1] += msg[i]
+    #
+
+
+
+
 
     def send_messages(self):
         print("entered to send msgs")
@@ -190,7 +207,7 @@ class Client():
             if not self.wlist == None:
                 #key = Fernet.generate_key()#generates new key (bytes object) randomly
                 # data = key.decode() + "%%%" + self.do_encrypt(key, message).decode()
-                data = self.do_encrypt(self.key, message).decode()
+                data = f"Start_Seg{self.do_encrypt(self.key, message).decode()}End_Seg"
                 #print(data)
                 #print(type(data))
                 #print("really sent:" + data)
@@ -218,11 +235,14 @@ class Client():
         nameEL.grid(row=1, column=1)
         pwordEL.grid(row=2, column=1)
 
-        loginB = Button(roots, text='Login',
+        forgot_pass_Button = Button(roots, text='forgot password?', bg="orange")
+        forgot_pass_Button.grid(column=1, row=3)
+
+        loginB = Button(roots, text='Login', bg="green",
                         command=lambda: self.CheckLogin(
                             roots))  # This makes the login button, which will go to the CheckLogin def.
-        loginB.grid(columnspan=2, sticky=W)
-        signupB = Button(roots, text="Signup",
+        loginB.grid(columnspan=2, row=3, sticky=W)
+        signupB = Button(roots, text="Signup",bg="blue",
                          command=lambda: self.Signup(
                              roots))  # This makes the login button, which will go to the CheckLogin def.
         signupB.grid(columnspan=2, column=2, row=3)
@@ -241,7 +261,7 @@ class Client():
         # except:
         #     print("fail open socket")
 
-        msg_to_server = username + "%%%" + hashed_password
+        msg_to_server = username + "+*!?" + hashed_password
         #print("msg_to_server = ", msg_to_server)
         self.messages_to_send.append(msg_to_server)
         self.send_messages()
@@ -307,7 +327,7 @@ class Client():
             print(f"mini_part = {mini_part}")
             #key = mini_part.split("%%%")[0]
             data = mini_part#.split("%%%")[1]
-            mini_part = self.do_decrypt(self.key, data.encode()).decode()
+            mini_part = self.do_decrypt(self.key, data.encode())
             message_q.put(mini_part)
         self.big_data = msg_split1[len(msg_split1)-1]
 
@@ -463,11 +483,11 @@ class ChatInterface(Frame, Client):
 
 
         # just to show how it will look like
-        contacts = ["PUBLIC"]
+        contacts = ["public"]
         for i in contacts:
             self.button_frame = Frame(self.canvas)
             self.button_frame.pack(fill=BOTH)
-            #self.button_frames.append(self.buttons_frame)
+            # self.button_frames.append(self.buttons_frame)
             self.button_try = Button(self.button_frame, text=i,width=18 ,bg="gray99" ,relief=FLAT, font=self.font, command=lambda: self.change_to_public_mode())
             self.button_try.pack(padx=10, pady=5, side=TOP)
 
@@ -577,10 +597,15 @@ class ChatInterface(Frame, Client):
     #     f.write(f"{self.tl_bg},{self.tl_bg2},{self.tl_fg},{self.font}\n")
 
     def change_to_public_mode(self):
+        self.mode = 'ENABLE'
         self.current_id = "public"
         self.current_external_id = "public"
         self.current_chat_name = "public"
-        self.chat_info_button.configure(text="PUBLIC")
+        if self.last_right_frame:
+            self.right_frame.pack_forget()
+            self.last_right_frame.pack(fill=BOTH, expand=True)
+            self.right_frame = self.last_right_frame
+        self.chat_info_button.configure(text="public")
         self.text_box.config(state=NORMAL)
         self.text_box.delete(1.0, END)
         self.text_box.config(state=DISABLED)
@@ -735,6 +760,8 @@ class ChatInterface(Frame, Client):
         self.color_theme_default()
 
     def send_message(self):
+        if self.mode == "DISABLE":
+            return
 
         user_input = self.entry_field.get()
 
@@ -742,11 +769,11 @@ class ChatInterface(Frame, Client):
             return
 
         if self.current_id != "public": # in private chat ...
-            msg_to_send = f"private%%%{self.username}%%%{self.current_id}%%%{self.current_external_id}%%%{user_input}"
+            msg_to_send = f"private+*!?{self.username}+*!?{self.current_id}+*!?{self.current_external_id}+*!?{user_input}"
 
             #print(msg_to_send)
         if self.current_id == "public":
-            msg_to_send = "public%%%" + self.username + "%%%" + user_input
+            msg_to_send = "public+*!?" + self.username + "+*!?" + user_input
 
         username = saved_username[-1] + ": "
         message = (username, user_input)
@@ -773,16 +800,33 @@ class ChatInterface(Frame, Client):
         self.send_message()
 
     def client_exit(self):
-        msg_to_server = "NAK%%%"+self.username
+        msg_to_server = "NAK+*!?"+self.username
         for btn in self.buttons:
-            msg_to_server = msg_to_server + "%%%" + str(btn.chat_id) + "%%%" + str(btn.new_msgs)
+            msg_to_server = msg_to_server + "+*!?" + str(btn.chat_id) + "+*!?" + str(btn.new_msgs)
         self.messages_to_send.append(msg_to_server)
         self.send_messages()
         exit()
         pass
+
     def choose_file(self):
         file_path = filedialog.askopenfilename()
-        #print("the file path: " + file_path)
+        if file_path:
+            print(file_path)
+            with open(file_path, 'rb') as f:
+                contents = f.read()
+                f.close()
+            print(type(contents))
+            if self.current_id == "public":
+                split = file_path.split('/')
+                file_name = len(split)
+                file_name = split[file_name-1]
+                file_msg = ("public_file+*!?" + self.username + f"+*!?{file_name}$$$").encode()+contents
+                self.messages_to_send.append(file_msg)
+                self.send_messages()
+            else:
+                pass
+                #file_msg = f"private%%%{self.username}%%%{self.current_id}%%%{self.current_external_id}%%%{user_input}"
+
     def clear_chat(self):
         self.text_box.config(state=NORMAL)
         self.text_box.delete(1.0, END)
@@ -791,7 +835,7 @@ class ChatInterface(Frame, Client):
         pass
 
     def config_message(self, message):
-        msg = message.split('%%%')
+        msg = message.split('+*!?')
         return msg[1] + ': ' + msg[2]
 
     def open_new_chat_window(self):
@@ -821,18 +865,29 @@ class ChatInterface(Frame, Client):
 
     def decipher(self, message):
         print(f"message in decipher = {message}")
-        if message.split("%%%")[0] == "public":
-
+        if message.split(b"+*!?")[0] == b"public":
             if self.current_id == "public" and self.current_external_id == "public" and self.mode == "ENABLE":
+                message = message.decode()
                 self.send_message_insert(self.config_message(message))
+        elif message.split(b"+*!?")[0] == b"public_file":
+            if b"$$$" in message:
+                print("special msg")
+                splited = message.split(b'+*!?')[2]
 
-        elif message.split("%%%")[0] == "private":
+                file_info = splited.split(b"$$$")
+                file_name = file_info[0].decode('utf-8')
+                file = file_info[1]
+                # type_special = splited[0].split(b'%%%')
+                with open(file_name, 'wb') as f:
+                    f.write(file)
+                    f.close()
+        elif message.split(b"+*!?")[0] == b"private":
 
-            msg = message.split("%%%")
-            username =msg[1]
-            id = msg[2]
+            msg = message.split(b"+*!?")
+            username =msg[1].decode()
+            id = msg[2].decode()
             #print(f"id clienttt ={id}")
-            msg = msg[3]
+            msg = msg[3].decode()
             print(f"username = {username}, id = {id},msg = {msg}")
             print(f"and the current chat_id the client now = {self.current_id}")
             #TODO: CHECK IF THE CURRENT_ID IS THE SAME AS THE ID FROM THE MSG IF IT IS I NEED TO DISPLAY IT AND IF NOT I NEED TO SIGHN THE CURRENT CHAT
@@ -849,15 +904,25 @@ class ChatInterface(Frame, Client):
                 mixer.music.load('pics/msg sound 1.mp3')
                 mixer.music.play()
 
+        elif message.split(b'+*!?')[0] == b'chat info':
+            print("hereeeeeeeee")
+            #msg = f"chat info+*!?{is_manager}+*!?{is_linked}+*!?{num_of_contacts}+*!?{users_he_linked}+*!?{contacts}+*!?{managers}"
+            msg = message.split(b'+*!?')
+            is_manager = msg[1]
+            is_linked = msg[2].decode()
+            num_of_contacts = msg[3].decode()
+            users_he_linked = msg[4].decode()
+            contacts = msg[5].decode()
+            managers = msg[6].decode()
+            self.display_chat_info(is_manager, is_linked, num_of_contacts, users_he_linked, contacts, managers)
 
-
-        elif message.split("%%%")[0] == "new chat":
-            msg = message.split("%%%")
-            chat_id = msg[1]
-            external_id = msg[2]
-            chat_name = msg[3]
-            contacts = msg[4]
-            new_msgs = msg[5]
+        elif message.split(b"+*!?")[0] == b"new chat":
+            msg = message.split(b"+*!?")
+            chat_id = msg[1].decode()
+            external_id = msg[2].decode()
+            chat_name = msg[3].decode()
+            contacts = msg[4].decode()
+            new_msgs = msg[5].decode()
             print(f"new_msgs = {new_msgs}")
             while self.bool == False: #wait to load the client graphics
                 None
@@ -870,6 +935,37 @@ class ChatInterface(Frame, Client):
             print ("chat button created")
             self.button_frames.append(self.buttons_frame)
             self.buttons.append(b)
+
+    def display_chat_info(self, is_manager, is_linked, num_of_contacts, users_he_linked, contacts, managers):
+        contacts = contacts.split(",")
+        managers = managers.split(",")
+        users_he_linked = users_he_linked.split(",")
+        managers = '\n'.join(managers)
+        contacts = '\n'.join(contacts)
+        users_he_linked = '\n'.join(users_he_linked)
+        to_display = None
+        if is_manager == "False" and is_linked == "False":
+            to_display = f"-----Info page:-----\nName: {self.current_chat_name}\n-----Managers:-----\n{managers}\n" \
+                     f"-----Contacts:--({num_of_contacts})---\n{contacts}\n" \
+                     f"-----Users you linked-----\n{users_he_linked}"
+
+        if is_manager == "True" and is_linked == "False":
+            to_display = f"-----Info page:-----\nMame: {self.current_chat_name}\n-----Managers:--(You are a manager)---\n{managers}\n" \
+                         f"-----Contacts:--({num_of_contacts})---\n{contacts}\n" \
+                         f"-----Users you linked-----\n{users_he_linked}"
+        if is_manager == "False" and is_linked == "True":
+            to_display = f"-----Info page:-----\nMame: {self.current_chat_name}--(This is a linked chat)---\n-----Managers:-----\n{managers}\n" \
+                         f"-----Contacts:--({num_of_contacts})---\n{contacts}\n" \
+                         f"-----Users you linked-----\n{users_he_linked}"
+        else:
+            to_display = f"-----Info page:-----\nMame: {self.current_chat_name}\n-----Managers:--(You are a manager and also have linked chat of this chat)---\n{managers}\n" \
+                         f"-----Contacts:--({num_of_contacts})---\n{contacts}\n" \
+                         f"-----Users you linked-----\n{users_he_linked}"
+
+        self.text_box.config(state=NORMAL)
+        self.text_box.delete(1.0, END)
+        self.text_box.insert(END,to_display+"\n")
+        self.text_box.config(state=DISABLED)
 
 
 

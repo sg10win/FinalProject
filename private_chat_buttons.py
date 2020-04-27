@@ -24,7 +24,7 @@ class PrivateChatButton(Button):
 
     def chat_request(self):
         # FIRST THE ID AND THAN THE EXTERNAL
-        msg = f"chat request%%%{self.chat_id}%%%{self.external_id}"
+        msg = f"chat request+*!?{self.chat_id}+*!?{self.external_id}"
         self.client.mode = "ENABLE"
         if self.client.last_right_frame:
             self.client.right_frame.pack_forget()

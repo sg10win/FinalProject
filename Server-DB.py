@@ -15,6 +15,7 @@ class Client(object):
         self._username = username
         self._socket = socket
         self._key = key
+        self._big_data = b""
 
     def get_username(self):
         return self._username
@@ -30,6 +31,12 @@ class Client(object):
 
     def get_key(self):
         return self._key
+
+    def get_big_data(self):
+        return self._big_data
+
+    def set_big_data(self, big_data):
+        self._big_data = big_data
 
 class ListClients(object):
     def __init__(self):
@@ -93,6 +100,28 @@ class ListClients(object):
             if client.get_socket() == socket:
                 return client.get_key()
         raise Exception("socket not found in client list")
+
+    def get_big_data_by_socket(self, socket):
+        for client in self._clients:
+            if client.get_socket() == socket:
+                return client.get_big_data()
+        raise Exception("socket not found in client list")
+
+    def set_big_data_by_socket(self, socket, data):
+        if socket in self.get_sockets():
+            print("oy")
+            a= self._get_client_by_socket(socket)
+            if a:
+                a.set_big_data(data)
+            else:
+                print("oy 2")
+        # for client_socket in self.get_sockets():
+        #     if client_socket == socket:
+        #        self._get_client_by_socket(client_socket).set_big_data(data)
+        else:
+            raise Exception("socket not found in client list")
+
+
 # you need to remember to colse the database connection
 class Server(object):
     def __init__(self):
@@ -178,7 +207,8 @@ class Server(object):
             "external_id": int,
             "new_msgs": int,
             "managers_id": str,
-            "is_linked": bool},
+            "is_linked": bool,
+            "linker_id": int},
             pk="id"
             )
 
@@ -281,11 +311,11 @@ class Server(object):
             username = self.db["users"].get(user_id)["username"]
             if username in usernames:
                 self.db["chats"].insert({"id": self.last_id, "name": chat_name, "msgs": new_chat_msg, "contacts": contacts
-                                            , "user_id": user_id, "external_id": random_external_id, "new_msgs": 1, "managers_id": creator_id})
+                                            , "user_id": user_id, "external_id": random_external_id, "new_msgs": 1, "managers_id": creator_id, "is_linked": False})
                 print(f"created this chat now=>{self.db['chats'].get(self.last_id)}")
                 if username in self.clients.get_usernames():
                     list_client = [self.clients.get_socket(username)]
-                    self.msg_maker("new chat%%%" + str(self.last_id) + "%%%" + str(random_external_id) + "%%%" + chat_name + "%%%" + contacts + "%%%" + "1", list_client)
+                    self.msg_maker("new chat+*!?" + str(self.last_id) + "+*!?" + str(random_external_id) + "+*!?" + chat_name + "+*!?" + contacts + "+*!?" + "1", list_client)
                     #print("sent after it=>"+"new chat%%%" + str(self.last_id) + "%%%" + str(random_external_id) + "%%%" + chat_name + "%%%" + contacts + "%%%" + new_chat_msg)
                 self.last_id = self.last_id + 1
 
@@ -298,12 +328,13 @@ class Server(object):
 
     def save_msg_in_db1 (self,msg):
         self.print_table(self.db["chats"])
-        msg = msg.split("%%%")
+        msg = msg.split("+*!?")
         username = msg[1]
         sender_chat_id = msg[2]
         external_id = msg[3]
         msg = msg[4]
 
+        sender_id = str(self.db['chats'].get(int(sender_chat_id))['user_id'])
         managers_ids = self.db["chats"].get(int(sender_chat_id))["managers_id"]
         managers_ids = managers_ids.split(',')
 
@@ -315,7 +346,7 @@ class Server(object):
                     print("in if 2")
                     previous_msgs = self.db["chats"].get(chat_id)["msgs"]
                     msgs = f"{previous_msgs}\n{username}: {msg}"
-                    if sender_chat_id in managers_ids:
+                    if sender_id in managers_ids:
                         msgs = f"{previous_msgs}\n@{username}: {msg}"
                     self.db["chats"].update(chat_id, {"msgs": msgs})
                     username_that_want_the_msg = self.db["users"].get(self.db["chats"].get(chat_id)["user_id"])["username"]
@@ -348,25 +379,47 @@ class Server(object):
                     new_socket.send(key.decode().encode('utf-8'))
                     print("sent key")
                 else:
+                    data_list = []
                     data = current_socket.recv(1024)
                     if not data.decode('utf-8') == '':
                         #print("189" + data.decode())
 
                         #key, data = data.split(b"%%%")
                         #print(type(key), "= ", key)
-                        key = self.clients.get_key_by_socket(current_socket)
-                        data = self.do_decrypt(key, data)
+                        #key = self.clients.get_key_by_socket(current_socket)
+                        #data = self.do_decrypt(key, data)
+                        if current_socket in self.clients.get_sockets():
+                            print("ok")
+                            self.clients.set_big_data_by_socket(current_socket,self.clients.get_big_data_by_socket(current_socket)+data)
+                            data_list = self.messages_connected(current_socket)
+                            print(data_list)
+                        else:
+                            print("wtf")
+                            if current_socket == self.server_socket:
+                                print("r r r ")
+
+
                         #print(str(data.decode('utf-8')))
                     # if self.open_client_sockets[current_socket] == "":  # this is the sign of new singing in user
                     if self.clients.get_username(current_socket) == '':  # this is the sign of new singing in user
-                        if self.check_client_exit(data):
-                            temp_d = data.split(b'%%%')
+                        print("no username")
+                        if data_list != [] and self.check_client_exit(data_list[0]):
+                            print("logging")
+                            data = data_list.pop(0)
+                            temp_d = data.split(b'+*!?')
                             if len(temp_d) == 3:
                                 self.signup_process(data, current_socket, wlist)
                             if len(temp_d) == 2:
                                 self.login_process(data, current_socket, wlist)
+                        if data_list != []:
+                            print("decipher after logging")
+                            for data in data_list:
+                                self.decifer(data, current_socket)
+
                     else:
-                        self.decifer(data, current_socket)
+                        print("only decipher")
+                        for data in data_list:
+                            self.decifer(data, current_socket)
             time.sleep(0.05)
             self.send_waiting_messages(wlist)
 
@@ -379,9 +432,11 @@ class Server(object):
                     #print(f'\n\nsend waiting messages in loop{i} {client_socket}\n\n')
                     #key = Fernet.generate_key()  # generates new key (bytes object) randomly
                     #lol = data
+                    print ("a")
                     key = self.clients.get_key_by_socket(client_socket)
                     # me = key.decode() + "%%%" + self.do_encrypt(key, data.encode()).decode()
                     me = self.do_encrypt(key, data.encode()).decode()
+                    print("b")
 
                     #print("the data in line 336: " + str(data))
                     start_msg = "Start_Seg".encode('utf-8')
@@ -404,7 +459,7 @@ class Server(object):
                 break
 
     def login_process(self, data, current_socket, wlist):
-        arr = data.split(b'%%%')
+        arr = data.split(b'+*!?')
         username = arr[0].decode()
         hashed_pass = arr[1].decode()
         #print("username= ", username, "hashed_pass= ", hashed_pass)
@@ -427,7 +482,7 @@ class Server(object):
                     chat_name = self.db["chats"].get(chat_id)["name"]
                     contacts = self.db["chats"].get(chat_id)["contacts"]
                     new_msgs = self.db["chats"].get(chat_id)["new_msgs"]
-                    msg_to_send = f"new chat%%%{chat_id}%%%{chat_external_id}%%%{chat_name}%%%{contacts}%%%{new_msgs}"
+                    msg_to_send = f"new chat+*!?{chat_id}+*!?{chat_external_id}+*!?{chat_name}+*!?{contacts}+*!?{new_msgs}"
                     self.msg_maker(msg_to_send, [current_socket])
             #print(self.clients.get_usernames(), self.clients)
             #print("dict after :", self.open_client_sockets)
@@ -455,7 +510,7 @@ class Server(object):
                             external_id = chat["external_id"]
                             chat_name = chat["name"]
                             contacts = chat["contacts"]
-                            self.msg_maker(f"new chat%%%{chat_id}%%%{external_id}%%%{chat_name}%%%{contacts}", list)
+                            self.msg_maker(f"new chat+*!?{chat_id}+*!?{external_id}+*!?{chat_name}+*!?{contacts}", list)
                     ##########################################
 
                     return True
@@ -466,8 +521,8 @@ class Server(object):
 
 
     def check_client_exit(self, data):
-        if len(data.split(b'%%%')) == 2:
-            tmp = data.split(b'%%%')
+        if len(data.split(b'+*!?')) == 2:
+            tmp = data.split(b'+*!?')
             if tmp[1] == b'NAK':
                 #print(tmp[0].decode("utf-8") + " has logedout")
                 self.clients.remove_client(tmp[0].decode('utf-8'))
@@ -493,36 +548,55 @@ class Server(object):
     def decifer(self, data, current_socket):
         '''___TODO___'''
         #print('enter decifer')
-        if data.split(b'%%%')[0].decode('utf-8') == 'NAK':
-            data = data.decode('utf-8').split("%%%")
+        if data.split(b'+*!?')[0].decode('utf-8') == 'NAK':
+            data = data.decode('utf-8').split("+*!?")
             print(f"NAK data: {data}")
             username = data[1]
             self.update_db_after_client_NAK(data)
             self.clients.remove_client(username)
-        elif data.split(b'%%%')[0].decode('utf-8') == "exit chat":
+        elif data.split(b'+*!?')[0].decode('utf-8') == "exit chat":
             print("got exit chat request")
-            data = data.decode("utf-8").split("%%%")
+            data = data.decode("utf-8").split("+*!?")
             username = data[1]
             chat_external_id = data[2]
             chat_id = data[3]
             self.remove_client_from_chat(username, chat_external_id, chat_id)
+        elif data.split(b'+*!?')[0].decode('utf-8') == "chat info":
+            print("got info request")
+            data = data.decode("utf-8").split("+*!?")
+            chat_id = data[1]
+            self.send_info_request(chat_id)
 
-        elif data.split(b'%%%')[0].decode('utf-8') == "chat info":
-            print("got chat info request")
-        elif len(data.split(b'%%%')) == 3:
-            #print("322"+data.decode('utf-8'))
-            temp = data.decode('utf-8').split("%%%")
-            command = temp[0]
+
+        elif len(data.split(b'+*!?')) == 3:
+            temp = data.split(b"+*!?")
+            command = temp[0].decode("utf-8")
+            print(command)
+
             if command == "public":
+                temp = data.decode('utf-8').split('+*!?')
+                print("in public if ")
                 username = temp[1]
                 socket_sender = self.clients.get_socket(username)
-                msg = command + '%%%' + username + '%%%' + temp[2]
+                msg = command + '+*!?' + username + '+*!?' + temp[2]
+                print(f"the msg = {msg}")
                 self.send_messages_without_sender(msg, socket_sender)
+
+
+            if command == "public_file":
+                username = temp[1].decode("utf-8")
+                socket_sender = self.clients.get_socket(username)
+                msg_byte_object = temp[0] + b'+*!?' + temp[1] + b'+*!?' + temp[2]
+                self.send_messages_without_sender(msg_byte_object, socket_sender)
+
             if command == "create chat":
+                print("here")
+                temp = data.decode('utf-8').split('+*!?')
                 chat_name = temp[1]
                 contacts = temp[2].split(",")#the self username
                 self.create_new_chat(chat_name, contacts)
             if command == "chat request":
+                temp = data.decode('utf-8').split('+*!?')
                 chat_id = temp[1]
                 external_id = temp[2]
             #sends all the msgs in this chat
@@ -531,25 +605,26 @@ class Server(object):
                 #user_id = self.db["chats"].get(chat_id)["user_id"]
                 #username = self.db["users"].get(user_id)["username"]
                 #print(f"user_id: {user_id}\nusername{username}\nself.clients.get_usernames(){self.clients.get_usernames()}")
-                msg_to_send = f"private%%%%%%{chat_id}%%%{msgs}"
+                msg_to_send = f"private+*!?+*!?{chat_id}+*!?{msgs}"
                 sockets_list_to_send = []
                 sockets_list_to_send.append(current_socket)
                 self.msg_maker(msg_to_send, sockets_list_to_send)
-        elif len (data.split(b'%%%')) == 4:
-            data = data.decode('utf-8').split("%%%")
+        elif len (data.split(b'+*!?')) == 4:
+            data = data.decode('utf-8').split("+*!?")
             command = data[0]
             if command == "new link":
                 chat_external_id = data[1]
                 manager_chat_id = data[2]
                 username_to_link = data[3]
+                self.link_in_DB(chat_external_id, manager_chat_id, username_to_link)
 
-        elif len(data.split(b'%%%')) == 5:
+        elif len(data.split(b'+*!?')) == 5:
             # this is a private msg condition
             data = data.decode('utf-8')
             # save the new msgs in db---
             self.save_msg_in_db1(data)
             #---------------------------
-            data = data.split("%%%")
+            data = data.split("+*!?")
             command = data[0]
             sender_username = data[1]
             sender_chat_id = data[2]
@@ -564,25 +639,46 @@ class Server(object):
             managers = self.db["chats"].get(int(sender_chat_id))["managers_id"].split(",")
             if sender_id in managers:
                 manager = True
-
-
-
+            linker_two_id = None
+            linker_username_two = None
             managers_ids = self.db["chats"].get(int(sender_chat_id))["managers_id"]
             managers_ids = managers_ids.split(',')
             #SENDS THE MSG TO THE CHAT CONTACTS AND TO SAVE IT IN THE DB
             list_of_sockets_to_send = []
             #list_of_contacts = self.get_list_of_contacts(external_id)
             list_of_contacts = self.db["chats"].get(sender_chat_id)["contacts"].split(',')
+            _list_of_contacts = list_of_contacts
+            print(f"list of contacts = {list_of_contacts}")
+            contacts_with_linked = list_of_contacts
+            for _id in self.get_column_from_db("id", self.db["chats"]):
+                if self.db["chats"].get(_id)["is_linked"] and str(self.db["chats"].get(_id)["external_id"]) == external_id:
+                    username = self.db["users"].get(self.db["chats"].get(_id)["user_id"])["username"]
+                    contacts_with_linked .append(username)
             all_ids_in_users = self.get_column_from_db("id", self.db["users"])
             ids_to_send = []
             usernames_to_send = []
-            for contact in list_of_contacts:
+            for contact in contacts_with_linked :
                 if contact in self.clients.get_usernames():
                     for current_id in all_ids_in_users:
                         if self.db["users"].get(current_id)["username"] == contact:
                             ids_to_send.append(current_id)
                             usernames_to_send.append(contact)
                             break
+            list_of_contacts = _list_of_contacts
+            print(f"1sender_username = {sender_username}    ,list_of_contacts = {list_of_contacts}")
+            linker_username_two_is_manager = False
+            is_sender_linked: bool = False
+            linker_username = None
+            linker_is_manager = False
+            print(f"2sender_username = {sender_username}    ,list_of_contacts = {list_of_contacts}")
+            if sender_username not in list_of_contacts:
+                is_sender_linked = True
+                linker = self.db['users'].get(self.db["chats"].get(int(sender_chat_id))["linker_id"])
+                linker_username = linker["username"]
+                linker_id = self.db["chats"].get(int(sender_chat_id))["linker_id"]
+                if linker_id in managers:
+                    linker_is_manager = True
+
             #now the usernames and the ids orgenized
             for i in range(len(usernames_to_send)):
                 username = usernames_to_send[i]
@@ -596,10 +692,101 @@ class Server(object):
                         if str(self.db["chats"].get(id)["user_id"]) == str(id_of_username) and str(self.db["chats"].get(id)["external_id"]) == str(external_id):
                             c = id
                             break
-                    if manager:
-                        self.msg_maker(f"private%%%@{sender_username}%%%{c}%%%{msg}", sockets)
+                    is_user_linked = True
+                    if username in list_of_contacts:
+                        is_user_linked = False
+
+                    if is_user_linked and is_sender_linked:
+                        for _id in self.get_column_from_db("id", self.db["user"]):
+                            if self.db["users"].get(_id)["username"] == username:
+                                id_of_username = _id
+                                break
+                        for i in self.get_column_from_db("id", self.db["chats"]):
+                            chat = self.db["chats"].get(i)
+                            if id_of_username == chat["user_id"] and str(chat["external_id"]) == external_id:
+                                linker_two_id = chat["linker_id"]
+                                linker_username_two = self.db["users"].get(linker_two_id)
+                                break
+
+                        if linker_two_id in managers:
+                            linker_username_two_is_manager = True
+
+                        if linker_is_manager :
+                            linker_username = "@"+linker_username
+                        if linker_username_two_is_manager:
+                            linker_username_two = "@"+linker_username_two
+                        self.msg_maker(f"private+*!?[{linker_username_two}][{linker_username}]{sender_username}+*!?{c}+*!?{msg}", sockets)
+                    print(f"is_user_linked= {is_user_linked}\nis_sender_linked= {is_sender_linked}")
+                    if is_user_linked == False and is_sender_linked:
+                        if linker_is_manager :
+                            self.msg_maker(f"private+*!?[@{linker_username}]{sender_username}+*!?{c}+*!?{msg}", sockets)
+                        else:
+                            self.msg_maker(f"private+*!?[{linker_username}]{sender_username}+*!?{c}+*!?{msg}", sockets)
+                    if is_user_linked and not is_sender_linked:
+                        if linker_username_two_is_manager:
+                            self.msg_maker(f"private+*!?[@{linker_username_two}]{sender_username}+*!?{c}+*!?{msg}", sockets)
+                        else:
+                            self.msg_maker(f"private+*!?[{linker_username_two}]{sender_username}+*!?{c}+*!?{msg}", sockets)
                     else:
-                        self.msg_maker(f"private%%%{sender_username}%%%{c}%%%{msg}", sockets)
+                        if manager:
+                            self.msg_maker(f"private+*!?@{sender_username}+*!?{c}+*!?{msg}", sockets)
+                        else:
+                            self.msg_maker(f"private+*!?{sender_username}+*!?{c}+*!?{msg}", sockets)
+
+    def link_in_DB(self, chat_external_id, manager_chat_id, username_to_link):
+
+        manager_chat = self.db["chats"].get(int(manager_chat_id))
+        linked_chat_name = f'[LNK]{manager_chat["name"]}'
+        linker_name = self.db["users"].get(manager_chat["user_id"])["username"]
+        linker_id = self.db["users"].get(manager_chat["user_id"])["id"]
+        contacts = manager_chat["contacts"]
+        linked_chat_msg = f"Server: You linked to this chat by @{linker_name}"
+        managers_id = manager_chat["managers_id"]
+
+        chat_external_id = int(chat_external_id)
+        id_of_the_linked = None
+        for _id in self.get_column_from_db('id', self.db["users"]):
+            current_user = self.db["users"].get(_id)
+            username = current_user["username"]
+            if username == username_to_link:
+                id_of_the_linked = _id
+                self.db["chats"].insert(
+                    {"id": self.last_id, "name": linked_chat_name, "msgs": linked_chat_msg, "contacts": contacts
+                        , "user_id": id_of_the_linked, "external_id": chat_external_id, "new_msgs": 1,
+                     "managers_id": managers_id, "is_linked": True, "linker_id": linker_id})
+                if username in self.clients.get_usernames():
+                    list_client = [self.clients.get_socket(username)]
+                    self.msg_maker("new chat+*!?" + str(self.last_id) + "+*!?" + str(chat_external_id) + "+*!?" + linked_chat_name + "+*!?" + contacts + "+*!?" + "1", list_client)
+                    #print("sent after it=>"+"new chat%%%" + str(self.last_id) + "%%%" + str(random_external_id) + "%%%" + chat_name + "%%%" + contacts + "%%%" + new_chat_msg)
+                self.last_id = self.last_id + 1
+
+
+    def messages_connected(self,socket):
+        big_data = self.clients.get_big_data_by_socket(socket)
+        key = self.clients.get_key_by_socket(socket)
+        print(f"my big big big data = {big_data}")
+        # self.big_data = self.big_data
+        msg_split1 = big_data.split("End_Seg".encode())
+        print(f"len = {len(msg_split1)}, list = {msg_split1}")
+        wanted_list = []
+        for i in range(len(msg_split1)-1):
+            mini_part = msg_split1[i]
+            mini_part = mini_part.split("Start_Seg".encode())[1]
+            # print(f"mini_part = {mini_part}")
+            #key = mini_part.split("%%%")[0]
+            data = mini_part#.split("%%%")[1]
+            mini_part = self.do_decrypt(key, data)
+            wanted_list.append(mini_part)
+        self.clients.set_big_data_by_socket(socket, msg_split1[len(msg_split1)-1])
+        print(wanted_list)
+        return wanted_list
+
+
+
+
+
+
+
 
 
     def send_messages_without_sender(self, message, sender):
@@ -609,7 +796,10 @@ class Server(object):
                 #key = Fernet.generate_key()  # generates new key (bytes object) randomly
                 # message = key.decode() + "%%%" + self.do_encrypt(key, orgi_msg.encode()).decode()
                 key = self.clients.get_key_by_socket(client_socket)
-                message = self.do_encrypt(key, orgi_msg.encode()).decode()
+                if isinstance(orgi_msg, str):
+                    message = self.do_encrypt(key, orgi_msg.encode()).decode()
+                elif isinstance(orgi_msg, bytes):
+                    message = self.do_encrypt(key, orgi_msg).decode()
                 message = "Start_Seg" + message + "End_Seg"
                 client_socket.send(message.encode('utf-8'))
                 #print(f"id{client_socket} :" + message)
@@ -623,7 +813,7 @@ class Server(object):
     def signup_process(self, data, curret_socket, wlist):
         '''__TODO__ SEND THIS PARAMS TO THE DATABASE'''
         '''THE PROTOCLOL IS SIMPLE <EMAIL>%%%<USERNAME>%%%<HASHED PASSWORD>'''
-        arr = data.split(b'%%%')
+        arr = data.split(b'+*!?')
         email = arr[0].decode()
         username = arr[1].decode()
         hashed_pass = arr[2].decode()
@@ -645,21 +835,59 @@ class Server(object):
         contacts_in_chat_before_remove.remove(username)
 
         contacts_in_chat_after_remove = ','.join(contacts_in_chat_before_remove)
-        msg_to_save = f"private%%%Server%%%{_chat_id}%%%{_chat_external_id}%%%{username} left"
+        msg_to_save = f"private+*!?Server+*!?{_chat_id}+*!?{_chat_external_id}+*!?{username} left"
         self.save_msg_in_db1(msg_to_save)
         for chat_id in chat_ids:
             chat = self.db["chats"].get(chat_id)
             if str(chat['external_id']) == _chat_external_id:
                 chat.update({"contacts": contacts_in_chat_after_remove})
                 if self.db["users"].get(chat["user_id"])["username"] in self.clients.get_usernames() and self.db["users"].get(chat["user_id"])["username"] != username:
-                    msg_to_send = f"private%%%Server%%%{chat_id}%%%{username} left"
+                    msg_to_send = f"private+*!?Server+*!?{chat_id}+*!?{username} left"
                     self.msg_maker(msg_to_send, [self.clients.get_socket(self.db["users"].get(chat["user_id"])["username"])])
             if str(chat['id']) == _chat_id:
                 self.db["chats"].delete(chat_id)
                 break
 
+    def send_info_request(self, chat_id):
+        user_chat = self.db["chats"].get(int(chat_id))
+        name = self.db["users"].get(user_chat["user_id"])["username"]
+        sock = [self.clients.get_socket(name)]
+        external_id = user_chat["external_id"]
+        is_linked =  user_chat["is_linked"]
+        print("z")
+        is_manager = False
+        user_id = str(user_chat["user_id"])
+        _managers = user_chat["managers_id"].split(',')
+        _contacts = user_chat["contacts"]
+        contacts = user_chat['contacts'].split(',')
+        num_of_contacts = len(contacts)
+        managers = ""
+        print("k")
+        for mng in _managers:
+            managers = managers+","+self.db["users"].get(int(mng))["username"]
+        m = managers.split(',')
+        m = m[1:]
+        i=0
+        for mm in m :
+            m[i] = "@"+mm
+            i+=1
+        m= ','.join(m)
+        print(m )
+        if user_id in managers:
+            is_manager = True
+        users_he_linked = ""
+        print(f"is_manager = {is_manager}")
+        for chat_id in self.get_column_from_db("id", self.db["chats"]):
+            chat = self.db["chats"].get(chat_id)
+            if chat["is_linked"] and str(chat["linker_id"]) == user_id and chat["external_id"] == external_id:
+                username = self.db["users"].get(chat["user_id"])['username']
+                users_he_linked = users_he_linked+","+username
+        users_he_linked = ','.join(users_he_linked.split(',')[1:])
 
-
+        msg = f"chat info+*!?{is_manager}+*!?{is_linked}+*!?{num_of_contacts}+*!?{users_he_linked}+*!?{_contacts}+*!?{m}"
+        print('t')
+        self.msg_maker(msg,sock)
+        print("c")
 
 
 
