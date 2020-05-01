@@ -60,18 +60,19 @@ class TopFrameObject():
         frame = Frame(root)
         entry = Entry(frame)
         entry.pack(side=LEFT)
-        link_btn = Button(frame, text="link", command=lambda: self.send_the_link_msg(entry))
+        link_btn = Button(frame, text="link", command=lambda: self.send_the_link_msg(entry, root))
         link_btn.pack(side=RIGHT)
         frame.pack(side=TOP)
         mainloop()
 
-    def send_the_link_msg(self, entry):
+    def send_the_link_msg(self, entry, root):
         username_to_link = entry.get()
         print(username_to_link)
-        if username_to_link:
+        if username_to_link and self.client.current_id != 'public':
             chat_external_id = self.client.current_external_id
             manager_chat_id = self.client.current_id
             msg = f"new link+*!?{chat_external_id}+*!?{manager_chat_id}+*!?{username_to_link}"
             self.client.messages_to_send.append(msg)
             self.client.send_messages()
             print(f'{msg}')
+            root.destroy()

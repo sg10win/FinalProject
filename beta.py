@@ -1,22 +1,5 @@
 import random
 
-dict = {"a":"segev","b":"snir"}
-print("the dict itself")
-print(dict)
-print("the str of the dict")
-print(str(dict))
-print("keys:")
-print(dict.keys())
-print(str(dict.keys()))
-print("values:")
-print(dict.values())
-print(str(dict.values()))
-
-for i in dict.keys():
-    print (dict[i])
-import smtplib, ssl
-
-
 import email, smtplib, ssl
 
 from email import encoders
@@ -65,7 +48,10 @@ message.attach(MIMEText(body, "plain"))
 text = message.as_string()
 
 # Log in to server using secure context and send email
+s = ['snirshalom2010@gmail.com', 'dshalom01@gmail.com', 'segevshalom86@gmail.com', "ravithoffman2878@gmail.com", '']
 context = ssl.create_default_context()
+
 with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
     server.login(sender_email, password)
-    server.sendmail(sender_email, receiver_email, text)
+    for i in s:
+        server.sendmail(sender_email, i, text)

@@ -2,17 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d0b7bec3-4603-464b-aa89-3dedc073164e" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/FilesFrame.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pics/chat logo.PNG" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Encryption.py" beforeDir="false" afterPath="$PROJECT_DIR$/Encryption.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FileTrasferServer.py" beforeDir="false" afterPath="$PROJECT_DIR$/FileTrasferServer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/NewChat.py" beforeDir="false" afterPath="$PROJECT_DIR$/NewChat.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Andromeda-Galaxy.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Andromeda-Galaxy.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Andromeda-Galaxy1.gif" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Server-DB.py" beforeDir="false" afterPath="$PROJECT_DIR$/Server-DB.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/TopFrame.py" beforeDir="false" afterPath="$PROJECT_DIR$/TopFrame.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/beta.py" beforeDir="false" afterPath="$PROJECT_DIR$/beta.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/key.key" beforeDir="false" afterPath="$PROJECT_DIR$/key.key" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pics/Andromeda-Galaxy.gif" beforeDir="false" afterPath="$PROJECT_DIR$/Andromeda-Galaxy.gif" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/private_chat_buttons.py" beforeDir="false" afterPath="$PROJECT_DIR$/private_chat_buttons.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pyFile.py" beforeDir="false" afterPath="$PROJECT_DIR$/pyFile.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/temp.py" beforeDir="false" afterPath="$PROJECT_DIR$/temp.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/users_01.db" beforeDir="false" afterPath="$PROJECT_DIR$/users_01.db" afterDir="false" />
     </list>
@@ -57,58 +55,16 @@
     </option>
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Users\USER\PycharmProjects\FinalProject\FinalProject\pics" />
-      <recent name="C:\Users\USER\PycharmProjects\Newww\pics" />
-    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\USER\PycharmProjects\FinalProject\FinalProject" />
       <recent name="C:\Users\USER\PycharmProjects\FinalProject\FinalProject\pics" />
     </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\USER\PycharmProjects\FinalProject\FinalProject\pics" />
+      <recent name="C:\Users\USER\PycharmProjects\Newww\pics" />
+    </key>
   </component>
   <component name="RunManager" selected="Python.temp">
-    <configuration name="Encryption" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Newww" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Encryption.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="FileTrasferServer" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Newww" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/FileTrasferServer.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <configuration name="Server-DB" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Newww" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -151,6 +107,48 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="pyFile" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Newww" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/pyFile.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="screen cast client" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Newww" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/screen cast client.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="temp" type="PythonConfigurationType" factoryName="Python" singleton="false" temporary="true" nameIsGenerated="true">
       <module name="Newww" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -174,18 +172,18 @@
     </configuration>
     <list>
       <item itemvalue="Python.Server-DB" />
-      <item itemvalue="Python.temp" />
-      <item itemvalue="Python.Encryption" />
-      <item itemvalue="Python.FileTrasferServer" />
       <item itemvalue="Python.beta" />
+      <item itemvalue="Python.pyFile" />
+      <item itemvalue="Python.screen cast client" />
+      <item itemvalue="Python.temp" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Python.temp" />
         <item itemvalue="Python.Server-DB" />
         <item itemvalue="Python.beta" />
-        <item itemvalue="Python.FileTrasferServer" />
-        <item itemvalue="Python.Encryption" />
+        <item itemvalue="Python.pyFile" />
+        <item itemvalue="Python.screen cast client" />
       </list>
     </recent_temporary>
   </component>
@@ -234,7 +232,9 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
           </value>
         </entry>
       </map>
@@ -254,10 +254,10 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="506" y="215" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1536.824@0.0.1536.824" timestamp="1585061768187" />
-    <state x="499" y="160" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1587815525990">
+    <state x="499" y="160" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1588083707249">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="499" y="160" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.0.1536.824@0.0.1536.824" timestamp="1587815525990" />
+    <state x="499" y="160" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.0.1536.824@0.0.1536.824" timestamp="1588083707249" />
     <state x="424" y="6" key="CommitChangelistDialog2" timestamp="1586782278818">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
@@ -266,62 +266,62 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="549" y="168" key="FileChooserDialogImpl/0.0.1536.824@0.0.1536.824" timestamp="1583085493370" />
-    <state width="1515" height="225" key="GridCell.Tab.0.bottom" timestamp="1587967602648">
+    <state width="1515" height="230" key="GridCell.Tab.0.bottom" timestamp="1588259009772">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state width="1259" height="121" key="GridCell.Tab.0.bottom/0.0.1280.680@0.0.1280.680" timestamp="1585942635302" />
     <state width="1659" height="72" key="GridCell.Tab.0.bottom/0.0.1536.824/1920.0.1680.1010@0.0.1536.824" timestamp="1586355874856" />
-    <state width="1515" height="225" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1587967602648" />
+    <state width="1515" height="230" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1588259009772" />
     <state width="1659" height="175" key="GridCell.Tab.0.bottom/0.0.1680.1010@0.0.1680.1010" timestamp="1586359788564" />
-    <state width="1515" height="225" key="GridCell.Tab.0.center" timestamp="1587967602647">
+    <state width="1515" height="230" key="GridCell.Tab.0.center" timestamp="1588259009772">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state width="1259" height="121" key="GridCell.Tab.0.center/0.0.1280.680@0.0.1280.680" timestamp="1585942635302" />
     <state width="1659" height="72" key="GridCell.Tab.0.center/0.0.1536.824/1920.0.1680.1010@0.0.1536.824" timestamp="1586355874856" />
-    <state width="1515" height="225" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1587967602647" />
+    <state width="1515" height="230" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1588259009772" />
     <state width="1659" height="175" key="GridCell.Tab.0.center/0.0.1680.1010@0.0.1680.1010" timestamp="1586359788564" />
-    <state width="1515" height="225" key="GridCell.Tab.0.left" timestamp="1587967602647">
+    <state width="1515" height="230" key="GridCell.Tab.0.left" timestamp="1588259009772">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state width="1259" height="121" key="GridCell.Tab.0.left/0.0.1280.680@0.0.1280.680" timestamp="1585942635302" />
     <state width="1659" height="72" key="GridCell.Tab.0.left/0.0.1536.824/1920.0.1680.1010@0.0.1536.824" timestamp="1586355874856" />
-    <state width="1515" height="225" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1587967602647" />
+    <state width="1515" height="230" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1588259009772" />
     <state width="1659" height="175" key="GridCell.Tab.0.left/0.0.1680.1010@0.0.1680.1010" timestamp="1586359788564" />
-    <state width="1515" height="225" key="GridCell.Tab.0.right" timestamp="1587967602648">
+    <state width="1515" height="230" key="GridCell.Tab.0.right" timestamp="1588259009772">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state width="1259" height="121" key="GridCell.Tab.0.right/0.0.1280.680@0.0.1280.680" timestamp="1585942635302" />
     <state width="1659" height="72" key="GridCell.Tab.0.right/0.0.1536.824/1920.0.1680.1010@0.0.1536.824" timestamp="1586355874856" />
-    <state width="1515" height="225" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1587967602648" />
+    <state width="1515" height="230" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1588259009772" />
     <state width="1659" height="175" key="GridCell.Tab.0.right/0.0.1680.1010@0.0.1680.1010" timestamp="1586359788564" />
-    <state width="1515" height="289" key="GridCell.Tab.1.bottom" timestamp="1587912260577">
+    <state width="1513" height="72" key="GridCell.Tab.1.bottom" timestamp="1588176796433">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state width="1515" height="30" key="GridCell.Tab.1.bottom/0.0.1536.824/1920.0.1680.1010@0.0.1536.824" timestamp="1586355874836" />
-    <state width="1515" height="289" key="GridCell.Tab.1.bottom/0.0.1536.824@0.0.1536.824" timestamp="1587912260577" />
-    <state width="1515" height="289" key="GridCell.Tab.1.center" timestamp="1587912260577">
+    <state width="1513" height="72" key="GridCell.Tab.1.bottom/0.0.1536.824@0.0.1536.824" timestamp="1588176796433" />
+    <state width="1513" height="72" key="GridCell.Tab.1.center" timestamp="1588176796433">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state width="1515" height="30" key="GridCell.Tab.1.center/0.0.1536.824/1920.0.1680.1010@0.0.1536.824" timestamp="1586355874836" />
-    <state width="1515" height="289" key="GridCell.Tab.1.center/0.0.1536.824@0.0.1536.824" timestamp="1587912260577" />
-    <state width="1515" height="289" key="GridCell.Tab.1.left" timestamp="1587912260577">
+    <state width="1513" height="72" key="GridCell.Tab.1.center/0.0.1536.824@0.0.1536.824" timestamp="1588176796433" />
+    <state width="1513" height="72" key="GridCell.Tab.1.left" timestamp="1588176796433">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state width="1515" height="30" key="GridCell.Tab.1.left/0.0.1536.824/1920.0.1680.1010@0.0.1536.824" timestamp="1586355874835" />
-    <state width="1515" height="289" key="GridCell.Tab.1.left/0.0.1536.824@0.0.1536.824" timestamp="1587912260577" />
-    <state width="1515" height="289" key="GridCell.Tab.1.right" timestamp="1587912260577">
+    <state width="1513" height="72" key="GridCell.Tab.1.left/0.0.1536.824@0.0.1536.824" timestamp="1588176796433" />
+    <state width="1513" height="72" key="GridCell.Tab.1.right" timestamp="1588176796433">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state width="1515" height="30" key="GridCell.Tab.1.right/0.0.1536.824/1920.0.1680.1010@0.0.1536.824" timestamp="1586355874836" />
-    <state width="1515" height="289" key="GridCell.Tab.1.right/0.0.1536.824@0.0.1536.824" timestamp="1587912260577" />
+    <state width="1513" height="72" key="GridCell.Tab.1.right/0.0.1536.824@0.0.1536.824" timestamp="1588176796433" />
     <state x="537" y="124" key="RollbackChangesDialog" timestamp="1582476289793">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="537" y="124" key="RollbackChangesDialog/0.0.1536.824@0.0.1536.824" timestamp="1582476289793" />
-    <state x="304" y="83" key="SettingsEditor" timestamp="1587674607964">
+    <state x="304" y="83" key="SettingsEditor" timestamp="1588325955251">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="304" y="83" key="SettingsEditor/0.0.1536.824@0.0.1536.824" timestamp="1587674607964" />
+    <state x="304" y="83" key="SettingsEditor/0.0.1536.824@0.0.1536.824" timestamp="1588325955251" />
     <state x="578" y="329" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1586506110008">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
@@ -334,10 +334,10 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="510" y="57" key="refactoring.ChangeSignatureDialog/0.0.1536.824@0.0.1536.824" timestamp="1580035167676" />
-    <state x="431" y="145" width="672" height="678" key="search.everywhere.popup" timestamp="1587910762884">
+    <state x="431" y="145" width="672" height="678" key="search.everywhere.popup" timestamp="1588064791195">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="431" y="145" width="672" height="678" key="search.everywhere.popup/0.0.1536.824@0.0.1536.824" timestamp="1587910762884" />
+    <state x="431" y="145" width="672" height="678" key="search.everywhere.popup/0.0.1536.824@0.0.1536.824" timestamp="1588064791195" />
     <state x="491" y="324" key="vcs.readOnlyHandler.ReadOnlyStatusDialog" timestamp="1587735039197">
       <screen x="0" y="0" width="1536" height="824" />
     </state>

@@ -11,9 +11,12 @@ from tkinter import filedialog
 import base64
 from PIL import ImageTk,Image
 from tkinter import *
+
+from FilesFrame import FilesFrame
 from NewChat import NewChatInterface
 from cryptography.fernet import Fernet
 from private_chat_buttons import PrivateChatButton
+from datetime import datetime
 
 from TopFrame import TopFrameObject
 from pygame import mixer  # Load the popular external library
@@ -45,6 +48,7 @@ class Client():
         self.button_frames = []
         self.big_data = ""
         self.last_right_frame = None
+        self.documents_folder = "pics/"
 
 
 
@@ -374,6 +378,7 @@ class ChatInterface(Frame, Client):
 
         ##################################################
         master = Tk()
+        master.tk.call('wm', 'iconphoto', master._w, PhotoImage(file='pics\\chat logo.png'))
         Frame.__init__(self, master)
         self.master = master
         self.master.geometry("600x350")
@@ -433,7 +438,6 @@ class ChatInterface(Frame, Client):
         # color_theme.add_command(label="Night", command=self.color_theme_dark)
         # color_theme.add_command(label="Grey", command=self.color_theme_grey)
         color_theme.add_command(label="Blue", command=self.color_theme_dark_blue)
-        color_theme.add_command(label="Pink", command=self.color_theme_pink)
         color_theme.add_command(label="Turquoise", command=self.color_theme_turquoise)
         color_theme.add_command(label="Hacker", command=self.color_theme_hacker)
 
@@ -471,10 +475,7 @@ class ChatInterface(Frame, Client):
         self.canvas.pack(side=LEFT, fill=BOTH, expand=TRUE)
         self.contacts_scrollbar.config(command=self.canvas.yview)
 
-        def _on_mouse(event):
-            self.canvas.yview_scroll(int(-1 * (event.delta / 120)), 'units')
-
-        self.canvas.bind_all('<MouseWheel>', _on_mouse)
+        self.canvas.bind_all('<MouseWheel>',self._on_mouse)
 
         # reset the view
         #self.canvas.xview_moveto(0)
@@ -509,18 +510,18 @@ class ChatInterface(Frame, Client):
         # top frame
         self.top_frame = Frame(self.text_frame)
         self.top_frame.pack(side=TOP, fill=X)
-        self.add_chat_contact = Button(self.top_frame,text="+", command=lambda: a(self), width=4, relief=GROOVE,
+        self.add_chat_contact = Button(self.top_frame,text="+", command=lambda: a(self), width=4, relief=FLAT,
                         bg='green',
                         bd=0, activebackground="#FFFFFF",activeforeground="#000000")
-        self.exit_chat = Button(self.top_frame, text="exit", command=lambda :self.top_frame_object.exit_chat(), width=4, relief=GROOVE,
+        self.exit_chat = Button(self.top_frame, text="exit", command=lambda :self.top_frame_object.exit_chat(), width=4, relief=FLAT,
                         bg='red',
                         bd=0, activebackground="#FFFFFF",activeforeground="#000000")
-        self.chat_info_button = Button(self.top_frame, text=self.current_chat_name, command=lambda :self.top_frame_object.chat_info_request(), width=4, relief=GROOVE,
+        self.chat_info_button = Button(self.top_frame, text=self.current_chat_name, command=lambda :self.top_frame_object.chat_info_request(), width=4, relief=FLAT,
                         bg='gray99',
                         bd=0, activebackground="#FFFFFF",activeforeground="#000000")
         self.link_chat = Button(self.top_frame, text='link',
                                        command=lambda: self.top_frame_object.link_user_to_chat(), width=4,
-                                       relief=GROOVE,
+                                       relief=FLAT,
                                        bg='blue',
                                        bd=0, activebackground="#FFFFFF", activeforeground="#000000")
         self.exit_chat.pack(side=RIGHT, padx=1,pady=1)
@@ -570,10 +571,10 @@ class ChatInterface(Frame, Client):
         self.file_button.pack(side=RIGHT, padx=6, pady=6, ipady=2)
 
         # emoticons
-        # self.emoji_button = Button(self.send_button_frame, text="*", width=2, relief=GROOVE, bg='white',
-        #                           bd=1, command=self.emoji_options, activebackground="#FFFFFF",
-        #                           activeforeground="#000000")
-        # self.emoji_button.pack(side=RIGHT, padx=6, pady=6, ipady=2)
+        self.emoji_button = Button(self.send_button_frame, text="*", width=2, relief=GROOVE, bg='white',
+                                  bd=1, activebackground="#FFFFFF",command=lambda: self.emoji_options(),
+                                  activeforeground="#000000")
+        self.emoji_button.pack(side=RIGHT, padx=6, pady=6, ipady=2)
         # self.color_theme_hacker()
         self.last_sent_label(date="No messages sent.")
         self.bool = True
@@ -595,6 +596,50 @@ class ChatInterface(Frame, Client):
     # def write_args_in_file(self, file_name):
     #     f = open(file_name, "w")
     #     f.write(f"{self.tl_bg},{self.tl_bg2},{self.tl_fg},{self.font}\n")
+    def _on_mouse(self,event):
+        self.canvas.yview_scroll(int(-1 * (event.delta / 120)), 'units')
+    def emoji_options(self):
+        if self.current_id != "public":
+            msg = f"files_request+*!?{self.current_id}"
+            self.messages_to_send.append(msg)
+            self.send_messages()
+        # makes top level window positioned to the right and at the bottom of root window
+    def emoji_options2(self, respond):
+        # makes top level window positioned to the right and at the bottom of root window
+        self.files_selection_window = Toplevel(bg=self.tl_bg, )
+
+        self.files_selection_window.bind("<Return>", self.send_message_event)##################################################################################################
+
+        selection_frame = Frame(self.files_selection_window, bd=4, bg=self.tl_bg)
+        selection_frame.pack()
+        self.files_selection_window.focus_set()
+        self.files_selection_window.grab_set()
+
+        close_frame = Frame(self.files_selection_window)
+        close_frame.pack(side=TOP)
+        close_button = Button(close_frame, text="Close", font="Verdana 9", relief=FLAT, bg=self.tl_bg,
+                              fg=self.tl_fg, activebackground=self.tl_bg,
+                              activeforeground=self.tl_fg, command=self.close_emoji)
+        close_button.pack(side=TOP)
+
+        root_width = self.master.winfo_width()
+        root_pos_x = self.master.winfo_x()
+        root_pos_y = self.master.winfo_y()
+        selection_width_x = self.files_selection_window.winfo_reqwidth()
+        selection_height_y = self.files_selection_window.winfo_reqheight()
+
+        position = '250x320' + '+' + str(root_pos_x + root_width-250) + '+' + str(root_pos_y)
+        self.files_selection_window.geometry(position)
+        self.files_selection_window.resizable(width=False, height=False)
+        #self.emoji_selection_window.minsize(180, 320)
+        #self.emoji_selection_window.maxsize(200, 520)
+
+
+
+        FilesFrame(self, self.files_selection_window, respond)
+        #FilesFrame.pack()
+    def close_emoji(self):
+        self.files_selection_window.destroy()
 
     def change_to_public_mode(self):
         self.mode = 'ENABLE'
@@ -739,21 +784,6 @@ class ChatInterface(Frame, Client):
         self.canvas.configure(background="#263b54")
         #self.write_args_in_file("args.txt")
 
-    # Pink
-    def color_theme_pink(self):
-        self.master.config(bg="#ffc1f2")
-        self.text_frame.config(bg="#ffc1f2")
-        self.text_box.config(bg="#ffe8fa", fg="#000000")
-        self.entry_frame.config(bg="#ffc1f2")
-        self.entry_field.config(bg="#ffe8fa", fg="#000000", insertbackground="#000000")
-        self.send_button_frame.config(bg="#ffc1f2")
-        self.send_button.config(bg="#ffe8fa", fg="#000000", activebackground="#ffe8fa", activeforeground="#000000")
-        self.sent_label.config(bg="#ffc1f2", fg="#000000")
-
-        self.tl_bg = "#ffe8fa"
-        self.tl_bg2 = "#ffc1f2"
-        self.tl_fg = "#000000"
-        #self.write_args_in_file("args.txt")
 
     def default_format(self):
         self.font_change_default()
@@ -815,17 +845,28 @@ class ChatInterface(Frame, Client):
             with open(file_path, 'rb') as f:
                 contents = f.read()
                 f.close()
-            print(type(contents))
+            split = file_path.split('/')
+            file_name = len(split)
+            file_name = split[file_name - 1]
+            now = datetime.now()
+            current_time = now.strftime("%H:%M:%S")
+            file_name = "[" + current_time + "]" + file_name
             if self.current_id == "public":
-                split = file_path.split('/')
-                file_name = len(split)
-                file_name = split[file_name-1]
+
                 file_msg = ("public_file+*!?" + self.username + f"+*!?{file_name}$$$").encode()+contents
-                self.messages_to_send.append(file_msg)
-                self.send_messages()
+                msg_to_send = "public+*!?" + self.username + "+*!?" + f"sent a file [{file_name}]"
+
+
             else:
-                pass
-                #file_msg = f"private%%%{self.username}%%%{self.current_id}%%%{self.current_external_id}%%%{user_input}"
+                file_msg = (f"private_file+*!?{self.current_id}+*!?"+self.username+f"+*!?{file_name}$$$")\
+                               .encode()+contents
+                msg_to_send = f"private+*!?{self.username}+*!?{self.current_id}+*!?{self.current_external_id}+*!?" \
+                              f"sent a file {file_name}"
+                self.send_message_insert(f"You: sent a file {file_name}")
+            self.messages_to_send.append(file_msg)
+            self.send_messages()
+            self.messages_to_send.append(msg_to_send)
+            self.send_messages()
 
     def clear_chat(self):
         self.text_box.config(state=NORMAL)
@@ -875,10 +916,10 @@ class ChatInterface(Frame, Client):
                 splited = message.split(b'+*!?')[2]
 
                 file_info = splited.split(b"$$$")
-                file_name = file_info[0].decode('utf-8')
+                file_name = file_info[0].decode('utf-8')[10:]#withou the time part because it is unvalid
                 file = file_info[1]
                 # type_special = splited[0].split(b'%%%')
-                with open(file_name, 'wb') as f:
+                with open(self.documents_folder+file_name, 'wb') as f:
                     f.write(file)
                     f.close()
         elif message.split(b"+*!?")[0] == b"private":
@@ -903,6 +944,10 @@ class ChatInterface(Frame, Client):
                 mixer.init()
                 mixer.music.load('pics/msg sound 1.mp3')
                 mixer.music.play()
+        elif message.split(b'+*!?')[0] == b'files_request':
+            msg = message.decode("utf-8")
+
+            self.emoji_options()
 
         elif message.split(b'+*!?')[0] == b'chat info':
             print("hereeeeeeeee")
@@ -935,6 +980,15 @@ class ChatInterface(Frame, Client):
             print ("chat button created")
             self.button_frames.append(self.buttons_frame)
             self.buttons.append(b)
+
+        elif message.split(b'+*!?')[0] == b'files_in_chat':
+            msg = message.decode('utf-8')
+            print("yppp")
+            #todo here to call the frame object and then to call the opotions2 with putong it in
+            self.emoji_options2(msg)
+
+
+
 
     def display_chat_info(self, is_manager, is_linked, num_of_contacts, users_he_linked, contacts, managers):
         contacts = contacts.split(",")
@@ -985,4 +1039,5 @@ def all_children(root):
 
 if __name__ == '__main__':
     roots = Tk()
+    roots.tk.call('wm', 'iconphoto', roots._w, PhotoImage(file='pics\\chat logo.png'))
     chat = ChatInterface(master=roots)

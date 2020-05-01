@@ -135,10 +135,17 @@ class Server(object):
         self.database_reset_temp()  # resets DB
         self.messages = []
         self.last_id = 1
+        self.last_file_id = 1
 
         self.clients = ListClients()
 
     def database_reset_temp(self):
+        try:
+            #self.conn.execute('''DROP TABLE CHATS;''')
+
+            self.db["files"].drop()
+        except:
+            print("there is no table FILES")
         try:
             #self.conn.execute('''DROP TABLE CHATS;''')
 
@@ -208,9 +215,16 @@ class Server(object):
             "new_msgs": int,
             "managers_id": str,
             "is_linked": bool,
-            "linker_id": int},
+            "linker_id": int,
+            "files_ids": str},
             pk="id"
             )
+        self.db["files"].create({
+            "id": int,
+            "name": str,
+            "value": bytes,
+            "username_of_sender": str
+        })
 
     def msg_maker(self, data, list_of_sockets_to_send):  # the type is 's'-signup, 'l'-login, 'm'-msg, **'f'-file**
         #print(data)
@@ -311,7 +325,7 @@ class Server(object):
             username = self.db["users"].get(user_id)["username"]
             if username in usernames:
                 self.db["chats"].insert({"id": self.last_id, "name": chat_name, "msgs": new_chat_msg, "contacts": contacts
-                                            , "user_id": user_id, "external_id": random_external_id, "new_msgs": 1, "managers_id": creator_id, "is_linked": False})
+                                            , "user_id": user_id, "external_id": random_external_id, "new_msgs": 1, "managers_id": creator_id, "is_linked": False, "files_ids": ""})
                 print(f"created this chat now=>{self.db['chats'].get(self.last_id)}")
                 if username in self.clients.get_usernames():
                     list_client = [self.clients.get_socket(username)]
@@ -435,7 +449,7 @@ class Server(object):
                     print ("a")
                     key = self.clients.get_key_by_socket(client_socket)
                     # me = key.decode() + "%%%" + self.do_encrypt(key, data.encode()).decode()
-                    me = self.do_encrypt(key, data.encode()).decode()
+                    me = self.do_encrypt(key, data).decode()
                     print("b")
 
                     #print("the data in line 336: " + str(data))
@@ -535,6 +549,8 @@ class Server(object):
         return f.decrypt(data)
 
     def do_encrypt(self, key, data):  # the params are byte object. return byte object
+        if isinstance(data, str):
+            data = data.encode()
         f = Fernet(key)
         return f.encrypt(data)
     def update_db_after_client_NAK(self, data):
@@ -566,6 +582,17 @@ class Server(object):
             data = data.decode("utf-8").split("+*!?")
             chat_id = data[1]
             self.send_info_request(chat_id)
+
+        elif data.split(b'+*!?')[0].decode('utf-8') == "files_request":
+            chat_id = data.split(b'+*!?')[1].decode('utf-8')
+            self.hendle_file_request(chat_id)
+
+        elif data.split(b'+*!?')[0].decode('utf-8') == "get_file_value":
+            print("ttl")
+            tmp = data.split(b'+*!?')
+            chat_id = tmp[1]
+            file_id = tmp[2]
+            self.send_file_to_client(chat_id, file_id)
 
 
         elif len(data.split(b'+*!?')) == 3:
@@ -610,13 +637,33 @@ class Server(object):
                 sockets_list_to_send.append(current_socket)
                 self.msg_maker(msg_to_send, sockets_list_to_send)
         elif len (data.split(b'+*!?')) == 4:
-            data = data.decode('utf-8').split("+*!?")
-            command = data[0]
+            temp = data.split(b"+*!?")
+            command = temp[0].decode("utf-8")
+
+
+
             if command == "new link":
+                data = data.decode().split("+*!?")
                 chat_external_id = data[1]
                 manager_chat_id = data[2]
                 username_to_link = data[3]
                 self.link_in_DB(chat_external_id, manager_chat_id, username_to_link)
+
+            if command == "private_file":
+                username = temp[2].decode('utf-8')
+                chat_id = temp[1].decode('utf-8')
+                contents = temp[3].split(b'$$$')
+                file_name = contents[0].decode('utf-8')
+                file = contents[1]  # bytes object
+                #socket_sender = self.clients.get_socket(username)
+                self.save_file_in_db(file, file_name, username, chat_id)  #  , file, file_name, username, chat_id)
+
+                # check if I saved the file in db
+                f = self.db["files"].get(1)["value"]
+                print("this is f",f)
+
+
+
 
         elif len(data.split(b'+*!?')) == 5:
             # this is a private msg condition
@@ -753,7 +800,7 @@ class Server(object):
                 self.db["chats"].insert(
                     {"id": self.last_id, "name": linked_chat_name, "msgs": linked_chat_msg, "contacts": contacts
                         , "user_id": id_of_the_linked, "external_id": chat_external_id, "new_msgs": 1,
-                     "managers_id": managers_id, "is_linked": True, "linker_id": linker_id})
+                     "managers_id": managers_id, "is_linked": True, "linker_id": linker_id, "files_ids": ""})
                 if username in self.clients.get_usernames():
                     list_client = [self.clients.get_socket(username)]
                     self.msg_maker("new chat+*!?" + str(self.last_id) + "+*!?" + str(chat_external_id) + "+*!?" + linked_chat_name + "+*!?" + contacts + "+*!?" + "1", list_client)
@@ -889,8 +936,48 @@ class Server(object):
         self.msg_maker(msg,sock)
         print("c")
 
+    def save_file_in_db(self, file, file_name, username, chat_id):
+        chat_id = int(chat_id)
+        self.db['files'].insert({"id": self.last_file_id, "name": file_name, "value": file, "username_of_sender": username})
+        external_id = self.db["chats"].get(chat_id)["external_id"]
+        #todo: to update the files in the chats
+        for _id in self.get_column_from_db("id", self.db['chats']):
+            chat = self.db["chats"].get(chat_id)
+            if chat["external_id"] == external_id:
 
+                files = chat["files_ids"]
+                if not files:
+                    self.db['chats'].update(_id, {"files_ids": f"{self.last_file_id}"})
+                else:
+                    self.db['chats'].update(_id,{"files_ids": f"{self.last_file_id},{files}"})
+        self.last_file_id += 1
 
+    def hendle_file_request(self, chat_id):
+        chat = self.db["chats"].get(int(chat_id))
+        files_ids = chat["files_ids"]
+        ids = files_ids.split(',')
+        senders = ''
+        file_names = ''
+        for file_id in ids:
+            print("file_id=",file_id)
+            if file_id != '':
+                f = self.db["files"].get(int(file_id))
+                file_names += f["name"]+","
+                senders += f["username_of_sender"]+","
+        file_names = file_names[:-1]
+        senders = senders[:-1]
+        msg = f"files_in_chat+*!?{files_ids}+*!?{file_names}+*!?{senders}"
+        sock = [self.clients.get_socket(self.db["users"].get(chat['user_id'])['username'])]
+        self.msg_maker(msg, sock)
 
+    def send_file_to_client(self, chat_id, file_id):
+        chat_id = int(chat_id)
+        file_id = int(file_id)
+        f = self.db["files"].get(file_id)
+        file_name = f["name"]
+        value = f["value"]
+        msg_byte_object = (f"public_file+*!?+*!?{file_name}$$$").encode()+value
+        sock = [self.clients.get_socket(self.db["users"].get(self.db["chats"].get(chat_id)["user_id"])['username'])]
+        self.msg_maker(msg_byte_object, sock)
 
 Server().run()
