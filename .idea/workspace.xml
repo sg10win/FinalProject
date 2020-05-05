@@ -2,16 +2,19 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d0b7bec3-4603-464b-aa89-3dedc073164e" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/FilesFrame.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pics/chat logo.PNG" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Andromeda-Galaxy.gif" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Andromeda-Galaxy.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Andromeda-Galaxy1.gif" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ClientInterface.py" beforeDir="false" afterPath="$PROJECT_DIR$/ClientInterface.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/EmailSender.py" beforeDir="false" afterPath="$PROJECT_DIR$/EmailSender.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Encryption.py" beforeDir="false" afterPath="$PROJECT_DIR$/Encryption.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FilesFrame.py" beforeDir="false" afterPath="$PROJECT_DIR$/FilesFrame.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Interface.py" beforeDir="false" afterPath="$PROJECT_DIR$/Interface.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NewChat.py" beforeDir="false" afterPath="$PROJECT_DIR$/NewChat.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NewPrivateChatInterface.py" beforeDir="false" afterPath="$PROJECT_DIR$/NewPrivateChatInterface.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Server-DB.py" beforeDir="false" afterPath="$PROJECT_DIR$/Server-DB.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/TopFrame.py" beforeDir="false" afterPath="$PROJECT_DIR$/TopFrame.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/beta.py" beforeDir="false" afterPath="$PROJECT_DIR$/beta.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/private_chat_buttons.py" beforeDir="false" afterPath="$PROJECT_DIR$/private_chat_buttons.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/temp.py" beforeDir="false" afterPath="$PROJECT_DIR$/temp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tryScrollBar.py" beforeDir="false" afterPath="$PROJECT_DIR$/tryScrollBar.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/users_01.db" beforeDir="false" afterPath="$PROJECT_DIR$/users_01.db" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -64,7 +67,70 @@
       <recent name="C:\Users\USER\PycharmProjects\Newww\pics" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.temp">
+  <component name="RunManager" selected="Python.Interface">
+    <configuration name="Interface" type="PythonConfigurationType" factoryName="Python" singleton="false" temporary="true" nameIsGenerated="true">
+      <module name="Newww" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Interface.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="NewChat" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Newww" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/NewChat.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="NewPrivateChatInterface" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Newww" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/NewPrivateChatInterface.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="Server-DB" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Newww" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -78,69 +144,6 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Server-DB.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="beta" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Newww" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/beta.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="pyFile" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Newww" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/pyFile.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="screen cast client" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Newww" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/screen cast client.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -172,18 +175,18 @@
     </configuration>
     <list>
       <item itemvalue="Python.Server-DB" />
-      <item itemvalue="Python.beta" />
-      <item itemvalue="Python.pyFile" />
-      <item itemvalue="Python.screen cast client" />
       <item itemvalue="Python.temp" />
+      <item itemvalue="Python.Interface" />
+      <item itemvalue="Python.NewPrivateChatInterface" />
+      <item itemvalue="Python.NewChat" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.temp" />
+        <item itemvalue="Python.Interface" />
         <item itemvalue="Python.Server-DB" />
-        <item itemvalue="Python.beta" />
-        <item itemvalue="Python.pyFile" />
-        <item itemvalue="Python.screen cast client" />
+        <item itemvalue="Python.NewChat" />
+        <item itemvalue="Python.temp" />
+        <item itemvalue="Python.NewPrivateChatInterface" />
       </list>
     </recent_temporary>
   </component>
@@ -246,10 +249,14 @@
     <option name="LAST_COMMIT_MESSAGE" value="better graphics" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="223" y="68" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1580032788569">
+    <state x="361" y="71" key="#Inspections" timestamp="1588340222307">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="223" y="68" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1536.824@0.0.1536.824" timestamp="1580032788569" />
+    <state x="361" y="71" key="#Inspections/0.0.1536.824@0.0.1536.824" timestamp="1588340222307" />
+    <state x="223" y="68" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1588443918146">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="223" y="68" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1536.824@0.0.1536.824" timestamp="1588443918146" />
     <state x="506" y="215" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1585061768187">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
@@ -258,6 +265,10 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="499" y="160" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.0.1536.824@0.0.1536.824" timestamp="1588083707249" />
+    <state x="524" y="115" key="#xdebugger.evaluate" timestamp="1588595918866">
+      <screen x="0" y="0" width="1536" height="824" />
+    </state>
+    <state x="524" y="115" key="#xdebugger.evaluate/0.0.1536.824@0.0.1536.824" timestamp="1588595918866" />
     <state x="424" y="6" key="CommitChangelistDialog2" timestamp="1586782278818">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
@@ -266,54 +277,54 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="549" y="168" key="FileChooserDialogImpl/0.0.1536.824@0.0.1536.824" timestamp="1583085493370" />
-    <state width="1515" height="230" key="GridCell.Tab.0.bottom" timestamp="1588259009772">
+    <state width="1515" height="381" key="GridCell.Tab.0.bottom" timestamp="1588665326085">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state width="1259" height="121" key="GridCell.Tab.0.bottom/0.0.1280.680@0.0.1280.680" timestamp="1585942635302" />
     <state width="1659" height="72" key="GridCell.Tab.0.bottom/0.0.1536.824/1920.0.1680.1010@0.0.1536.824" timestamp="1586355874856" />
-    <state width="1515" height="230" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1588259009772" />
+    <state width="1515" height="381" key="GridCell.Tab.0.bottom/0.0.1536.824@0.0.1536.824" timestamp="1588665326085" />
     <state width="1659" height="175" key="GridCell.Tab.0.bottom/0.0.1680.1010@0.0.1680.1010" timestamp="1586359788564" />
-    <state width="1515" height="230" key="GridCell.Tab.0.center" timestamp="1588259009772">
+    <state width="1515" height="381" key="GridCell.Tab.0.center" timestamp="1588665326085">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state width="1259" height="121" key="GridCell.Tab.0.center/0.0.1280.680@0.0.1280.680" timestamp="1585942635302" />
     <state width="1659" height="72" key="GridCell.Tab.0.center/0.0.1536.824/1920.0.1680.1010@0.0.1536.824" timestamp="1586355874856" />
-    <state width="1515" height="230" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1588259009772" />
+    <state width="1515" height="381" key="GridCell.Tab.0.center/0.0.1536.824@0.0.1536.824" timestamp="1588665326085" />
     <state width="1659" height="175" key="GridCell.Tab.0.center/0.0.1680.1010@0.0.1680.1010" timestamp="1586359788564" />
-    <state width="1515" height="230" key="GridCell.Tab.0.left" timestamp="1588259009772">
+    <state width="1515" height="381" key="GridCell.Tab.0.left" timestamp="1588665326085">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state width="1259" height="121" key="GridCell.Tab.0.left/0.0.1280.680@0.0.1280.680" timestamp="1585942635302" />
     <state width="1659" height="72" key="GridCell.Tab.0.left/0.0.1536.824/1920.0.1680.1010@0.0.1536.824" timestamp="1586355874856" />
-    <state width="1515" height="230" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1588259009772" />
+    <state width="1515" height="381" key="GridCell.Tab.0.left/0.0.1536.824@0.0.1536.824" timestamp="1588665326085" />
     <state width="1659" height="175" key="GridCell.Tab.0.left/0.0.1680.1010@0.0.1680.1010" timestamp="1586359788564" />
-    <state width="1515" height="230" key="GridCell.Tab.0.right" timestamp="1588259009772">
+    <state width="1515" height="381" key="GridCell.Tab.0.right" timestamp="1588665326085">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state width="1259" height="121" key="GridCell.Tab.0.right/0.0.1280.680@0.0.1280.680" timestamp="1585942635302" />
     <state width="1659" height="72" key="GridCell.Tab.0.right/0.0.1536.824/1920.0.1680.1010@0.0.1536.824" timestamp="1586355874856" />
-    <state width="1515" height="230" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1588259009772" />
+    <state width="1515" height="381" key="GridCell.Tab.0.right/0.0.1536.824@0.0.1536.824" timestamp="1588665326085" />
     <state width="1659" height="175" key="GridCell.Tab.0.right/0.0.1680.1010@0.0.1680.1010" timestamp="1586359788564" />
-    <state width="1513" height="72" key="GridCell.Tab.1.bottom" timestamp="1588176796433">
+    <state width="1515" height="268" key="GridCell.Tab.1.bottom" timestamp="1588596900241">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state width="1515" height="30" key="GridCell.Tab.1.bottom/0.0.1536.824/1920.0.1680.1010@0.0.1536.824" timestamp="1586355874836" />
-    <state width="1513" height="72" key="GridCell.Tab.1.bottom/0.0.1536.824@0.0.1536.824" timestamp="1588176796433" />
-    <state width="1513" height="72" key="GridCell.Tab.1.center" timestamp="1588176796433">
+    <state width="1515" height="268" key="GridCell.Tab.1.bottom/0.0.1536.824@0.0.1536.824" timestamp="1588596900241" />
+    <state width="1515" height="268" key="GridCell.Tab.1.center" timestamp="1588596900241">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state width="1515" height="30" key="GridCell.Tab.1.center/0.0.1536.824/1920.0.1680.1010@0.0.1536.824" timestamp="1586355874836" />
-    <state width="1513" height="72" key="GridCell.Tab.1.center/0.0.1536.824@0.0.1536.824" timestamp="1588176796433" />
-    <state width="1513" height="72" key="GridCell.Tab.1.left" timestamp="1588176796433">
+    <state width="1515" height="268" key="GridCell.Tab.1.center/0.0.1536.824@0.0.1536.824" timestamp="1588596900241" />
+    <state width="1515" height="268" key="GridCell.Tab.1.left" timestamp="1588596900241">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state width="1515" height="30" key="GridCell.Tab.1.left/0.0.1536.824/1920.0.1680.1010@0.0.1536.824" timestamp="1586355874835" />
-    <state width="1513" height="72" key="GridCell.Tab.1.left/0.0.1536.824@0.0.1536.824" timestamp="1588176796433" />
-    <state width="1513" height="72" key="GridCell.Tab.1.right" timestamp="1588176796433">
+    <state width="1515" height="268" key="GridCell.Tab.1.left/0.0.1536.824@0.0.1536.824" timestamp="1588596900241" />
+    <state width="1515" height="268" key="GridCell.Tab.1.right" timestamp="1588596900241">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state width="1515" height="30" key="GridCell.Tab.1.right/0.0.1536.824/1920.0.1680.1010@0.0.1536.824" timestamp="1586355874836" />
-    <state width="1513" height="72" key="GridCell.Tab.1.right/0.0.1536.824@0.0.1536.824" timestamp="1588176796433" />
+    <state width="1515" height="268" key="GridCell.Tab.1.right/0.0.1536.824@0.0.1536.824" timestamp="1588596900241" />
     <state x="537" y="124" key="RollbackChangesDialog" timestamp="1582476289793">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
@@ -334,10 +345,10 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="510" y="57" key="refactoring.ChangeSignatureDialog/0.0.1536.824@0.0.1536.824" timestamp="1580035167676" />
-    <state x="431" y="145" width="672" height="678" key="search.everywhere.popup" timestamp="1588064791195">
+    <state x="431" y="145" width="672" height="678" key="search.everywhere.popup" timestamp="1588664169734">
       <screen x="0" y="0" width="1536" height="824" />
     </state>
-    <state x="431" y="145" width="672" height="678" key="search.everywhere.popup/0.0.1536.824@0.0.1536.824" timestamp="1588064791195" />
+    <state x="431" y="145" width="672" height="678" key="search.everywhere.popup/0.0.1536.824@0.0.1536.824" timestamp="1588664169734" />
     <state x="491" y="324" key="vcs.readOnlyHandler.ReadOnlyStatusDialog" timestamp="1587735039197">
       <screen x="0" y="0" width="1536" height="824" />
     </state>

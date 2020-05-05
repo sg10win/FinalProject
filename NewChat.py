@@ -11,6 +11,7 @@ msg = ""
 class NewChatInterface:
     def __init__(self, ChatInterface):
         self.ChatInterface = ChatInterface
+        self.last_frame = None
         self.msg = ""
         self.tl_bg = ChatInterface.tl_bg
         self.tl_bg2 = ChatInterface.tl_bg2
@@ -57,10 +58,10 @@ class NewChatInterface:
             text_boxR.insert(END, "the chat was created.")
             text_boxR.see(END)
             text_boxR.configure(state=DISABLED)
-            #global msg
             msg = "create chat+*!?"+name+"+*!?"+added+","+self.ChatInterface.username
             self.ChatInterface.messages_to_send.append(msg)
-            self.ChatInterface.send_messages()
+            print(self.ChatInterface.messages_to_send)
+            #self.ChatInterface._send_messages()
             print(msg)
             self.cancel(root)
             # root.destroy()
@@ -142,7 +143,7 @@ class NewChatInterface:
         root.pack(fill=BOTH, expand=True)
 
         left = Frame(root)
-        left.grid(column=0)
+        left.grid(column=0, row=1)
         #labelTopL = ttk.Label(root,text="add here: ")
         #labelTopL.grid(column=0, row=1)
         comboExampleL = ttk.Combobox(left,width=28,
@@ -158,7 +159,7 @@ class NewChatInterface:
         text_frameL.grid(column=0,row=4, ipadx=20 , ipady=50)
 
         text_frameR = Frame(root, bd=0)
-        text_frameR.grid(column=1, row=0,sticky="w")
+        text_frameR.grid(column=1, row=1,sticky="w")
 
         # scrollbar for text box
         text_box_scrollbarL = Scrollbar(text_frameL, bd=0)
@@ -191,6 +192,9 @@ class NewChatInterface:
         nameE.grid(column=0, row=5, sticky="w")
         #nameL.grid(column=0, row=5,sticky="w")
 
+        title_l = Label(root, text="New group", font=(self.font, 16))
+        title_l.grid(column=0, row=0)
+
 
         #
 
@@ -207,6 +211,7 @@ class NewChatInterface:
         text_boxL.config(bg=self.tl_bg, fg=self.tl_fg, font=self.font)
         text_box.config(bg=self.tl_bg, fg=self.tl_fg, font=self.font)
         left.config(bg=self.tl_bg2)
+        title_l.config(bg=self.tl_bg, fg=self.tl_fg)
         #createB.config(bg=self.tl_bg, fg=self.tl_fg, activebackground=self.tl_bg, activeforeground=self.tl_fg, font=self.font)
         #removeB.config(bg=self.tl_bg, fg=self.tl_fg, activebackground=self.tl_bg, activeforeground=self.tl_fg, font=self.font)
         #addB.config(bg=self.tl_bg, fg=self.tl_fg, activebackground=self.tl_bg, activeforeground=self.tl_fg, font=self.font)

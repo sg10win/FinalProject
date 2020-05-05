@@ -55,6 +55,30 @@ class Client():
     def get_roots(self):
         return self.roots
 
+
+    # def forgot_password(self, root):
+    #     self.delete_all_in_root(root)
+    #     text= "enter your username"
+    #     l1 = Label(root, text=text)
+    #     l1.pack()
+    #     e1 = Entry(root)
+    #     e1.pack()
+    #     b1 = Button(root, text="send", command=lambda: self.send_username(e1.get(), root))
+    #     b1.pack()
+    # def waiting_to_email_root(self, root):
+    #     self.delete_all_in_root(root)
+    #     b1 = Button(root, command=lambda: self.change_password)
+    #     b2 = Button(root, command= )
+    #     e1 = Entry(root)
+    #     e1.pack()
+    #     text = "We sent to you email a verification code"
+    #     l1 = Label(root, text=text)
+    #     l1.pack()
+    # def send_username(self, username, root):
+    #     self.messages_to_send.append(f"forgot_password+*!?{username}")
+    #     self.send_messages()
+    #     self.waiting_to_email_root(root)
+
     def Signup(self, roots):  # This is the signup definition,
         global emailE
         global pwordE  # These globals just make the variables global to the entire script, meaning any definition can use them
@@ -191,20 +215,6 @@ class Client():
         return f.encrypt(data)
 
 
-    # def split_msg(self, msg):
-    #     max_packeg_size = 1024
-    #     i = 0
-    #     list_msgs = []
-    #     while i < len(msg):
-    #         if i % 1024 == 0:
-    #             list_msgs.append('')
-    #         list_msgs[-1] += msg[i]
-    #
-
-
-
-
-
     def send_messages(self):
         print("entered to send msgs")
         for message in self.messages_to_send:
@@ -239,8 +249,8 @@ class Client():
         nameEL.grid(row=1, column=1)
         pwordEL.grid(row=2, column=1)
 
-        forgot_pass_Button = Button(roots, text='forgot password?', bg="orange")
-        forgot_pass_Button.grid(column=1, row=3)
+        #forgot_pass_Button = Button(roots, text='forgot password?', bg="orange", command=lambda: self.forgot_password())
+        #forgot_pass_Button.grid(column=1, row=3)
 
         loginB = Button(roots, text='Login', bg="green",
                         command=lambda: self.CheckLogin(
@@ -1020,8 +1030,6 @@ class ChatInterface(Frame, Client):
         self.text_box.delete(1.0, END)
         self.text_box.insert(END,to_display+"\n")
         self.text_box.config(state=DISABLED)
-
-
 
 def a (client):
     pass

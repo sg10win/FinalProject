@@ -74,6 +74,7 @@ def openlink(i):
     print(lis[i])
 
 
+
 root.mainloop()
 
 

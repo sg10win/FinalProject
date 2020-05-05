@@ -9,6 +9,7 @@ class TopFrameObject():
     def __init__(self, client):
         self.client = client
 
+
     # this function is for the info button
     def chat_info_request(self):
         # TODO here I can make a better graphics option then to desplay it on the textbox
@@ -16,17 +17,15 @@ class TopFrameObject():
             public_chat_info_msg = "This is a public chat.\nAll the system's clients can get and send msgs here"
             self.client.text_box.config(state=NORMAL)
             self.client.text_box.delete(1.0, END)
-            print("gg")
             self.client.text_box.insert(END, public_chat_info_msg+'\n')
-            print("tt")
             self.client.text_box.config(state=DISABLED)
             self.client.mode = "DISABLE"
             return
         # for now i write the info in the textbox
-        self.client.disable()
+        self.client._disable()
         msg = "chat info+*!?"+f"{self.client.current_id}"
         self.client.messages_to_send.append(msg)
-        self.client.send_messages()
+        #self.client.send_messages()
         print("done")
 
     def exit_chat(self):
@@ -35,7 +34,6 @@ class TopFrameObject():
         if ans:
             msg = f"exit chat+*!?{self.client.username}+*!?{self.client.current_external_id}+*!?{self.client.current_id}"
             self.client.messages_to_send.append(msg)
-            self.client.send_messages()
             self.client.text_box.config(state=NORMAL)
             self.client.text_box.delete(1.0, END)
             self.client.text_box.config(state=DISABLED)
@@ -73,6 +71,34 @@ class TopFrameObject():
             manager_chat_id = self.client.current_id
             msg = f"new link+*!?{chat_external_id}+*!?{manager_chat_id}+*!?{username_to_link}"
             self.client.messages_to_send.append(msg)
-            self.client.send_messages()
             print(f'{msg}')
             root.destroy()
+
+
+    def add_contact_to_chat(self):
+        root = Tk()
+        title = Label(root, text="Add contact", bg=self.client.tl_bg2, font=self.client.font, fg=self.client.tl_fg)
+        title.pack(side=TOP)
+        frame = Frame(root, bg=self.client.tl_bg2)
+        frame.pack(side=TOP)
+        entry = Entry(frame)
+        entry.pack(side=RIGHT)
+        label = Label(frame,text="enter contact", bg=self.client.tl_bg2)
+        label.pack(side=LEFT)
+        add_btn = Button(root, text="add", relief=FLAT, bg="green2", command=lambda: self.add(entry, root))
+        cancel_btn = Button(root, text="cancel", relief=FLAT, bg='red', command=lambda: self.cancel(root))
+        add_btn.pack(side=RIGHT)
+        cancel_btn.pack(side=LEFT)
+
+    def add(self, entry, root):
+        contact = entry.get()
+        if contact == "" or contact is None:
+            return
+        msg = f"add_contact+*!?{self.client.username}+*!?{self.client.current_id}+*!?{contact}"
+        self.client.messages_to_send.append(msg)
+        print(msg)
+        root.destroy()
+
+    @staticmethod
+    def cancel(root):
+        root.destroy()
