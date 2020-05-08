@@ -55,13 +55,20 @@ class TopFrameObject():
 
     def link_user_to_chat(self):
         root = Tk()
-        frame = Frame(root)
-        entry = Entry(frame)
-        entry.pack(side=LEFT)
-        link_btn = Button(frame, text="link", command=lambda: self.send_the_link_msg(entry, root))
-        link_btn.pack(side=RIGHT)
+        root.config(bg=self.client.tl_bg2)
+        title = Label(root, text="link contact", bg=self.client.tl_bg, font=self.client.font, fg=self.client.tl_fg)
+        title.pack(side=TOP)
+        frame = Frame(root, bg=self.client.tl_bg2)
         frame.pack(side=TOP)
-        mainloop()
+        entry = Entry(frame)
+        entry.pack(side=RIGHT)
+        label = Label(frame, text="enter contact", bg=self.client.tl_bg, font=self.client.font, fg=self.client.tl_fg)
+        label.pack(side=LEFT)
+        add_btn = Button(root, relief=FLAT, bg="green2", text="link", command=lambda: self.send_the_link_msg(entry, root))
+        cancel_btn = Button(root, text="cancel", relief=FLAT, bg='red', command=lambda: self.cancel(root))
+        add_btn.pack(side=RIGHT)
+        cancel_btn.pack(side=LEFT)
+
 
     def send_the_link_msg(self, entry, root):
         username_to_link = entry.get()
@@ -77,13 +84,14 @@ class TopFrameObject():
 
     def add_contact_to_chat(self):
         root = Tk()
-        title = Label(root, text="Add contact", bg=self.client.tl_bg2, font=self.client.font, fg=self.client.tl_fg)
+        root.config(bg=self.client.tl_bg2)
+        title = Label(root, text="Add contact", bg=self.client.tl_bg, font=self.client.font, fg=self.client.tl_fg)
         title.pack(side=TOP)
         frame = Frame(root, bg=self.client.tl_bg2)
         frame.pack(side=TOP)
         entry = Entry(frame)
         entry.pack(side=RIGHT)
-        label = Label(frame,text="enter contact", bg=self.client.tl_bg2)
+        label = Label(frame,text="enter contact", bg=self.client.tl_bg, font=self.client.font, fg=self.client.tl_fg)
         label.pack(side=LEFT)
         add_btn = Button(root, text="add", relief=FLAT, bg="green2", command=lambda: self.add(entry, root))
         cancel_btn = Button(root, text="cancel", relief=FLAT, bg='red', command=lambda: self.cancel(root))

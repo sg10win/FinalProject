@@ -61,7 +61,7 @@ root.configure(background="gray99")
 scframe = VerticalScrolledFrame(root)
 scframe.pack()
 
-lis = list('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+lis = list('SZ')
 for i, x in enumerate(lis):
     btn = tk.Button(scframe.interior, height=1, width=20, relief=tk.FLAT,
                     bg="gray99", fg="blue2",

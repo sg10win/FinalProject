@@ -16,7 +16,7 @@ class NewPrivateChatInterface(object):
     def new_private_chat(self):
         # to make it better
         self.client.mode = "DISABLE"
-        self.last_frame = self.client.right_frame
+        self.last_frame = self.client.chat_frame
         self.client.last_right_frame = self.last_frame
         self.client.right_frame = self.root
         self.last_frame.pack_forget()
@@ -52,6 +52,7 @@ class NewPrivateChatInterface(object):
             self.cancel()
 
     def cancel(self):
+        self.client.is_chat_time = True
         self.client.right_frame = self.last_frame
         self.root.pack_forget()
         self.last_frame.pack(fill=BOTH, expand=True)

@@ -19,6 +19,7 @@ class Client(object):
         self.w_list = []
         self.x_list = []
         self.key = None
+        self.is_end = False
 
         self._connect_to_server()
 
@@ -36,6 +37,8 @@ class Client(object):
         self.is_private = False
         self.mode = 'ENABLE'
         self.chat_id = None
+
+        self.documents_folder = "pics/"
 
     def _connect_to_server(self):
         self.my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -209,6 +212,16 @@ class Client(object):
     def got_files_request(self):
         pass
 
+    def _got_private_file(self, message):
+        splited = message[2]
+
+        file_info = splited.split(b"$$$")
+        file_name = file_info[0].decode('utf-8')[10:]  # withou the time part because it is unvalid
+        file = file_info[1]
+        with open(self.documents_folder + file_name, 'wb') as f:
+            f.write(file)
+            f.close()
+
     def get_msg(self):
         return input('enter msg')
 
@@ -241,6 +254,9 @@ class Client(object):
         self._send_messages()
         self.client_exit()
         self.my_socket.close()
+        self.is_end = True
+
+
 
     def _enter_command(self):
         command = input('enter command')
@@ -299,6 +315,8 @@ class Client(object):
             self._got_files_in_chat(split_msg)
         if command == b'files_request':
             self._got_files_request(split_msg)
+        if command == b'private_file':
+            self._got_private_file(split_msg)
 
     def _run(self):
         while True:
@@ -315,12 +333,17 @@ class Client(object):
                     return
 
             self._send_messages()
-            time.sleep(0.02)
+            time.sleep(0.25)
             if type(self) == Client:
                 self._enter_command()
-                time.sleep(0.02)
+                time.sleep(0.25)
+
+            if self.is_end:
+                return
 
     @staticmethod
     def run(ip='127.0.0.1', port=8080):
         client = Client(ip=ip, port=port)
         client._run()
+
+

@@ -498,7 +498,7 @@ class Server(object):
                         print("only decipher")
                         for data in data_list:
                             self.decifer(data, current_socket)
-            time.sleep(0.02)
+            #time.sleep(0.02)
             self.send_waiting_messages(wlist)
 
     def send_waiting_messages(self, wlist):
@@ -515,7 +515,7 @@ class Server(object):
                     close_msg = "End_Seg".encode('utf-8')
                     msg_to_send = me.encode('utf-8')
                     msg_to_send = start_msg + msg_to_send + close_msg
-                    time.sleep(0.5)
+                    time.sleep(0.4)
                     client_socket.send(msg_to_send)
 
                     print("boom= " + str(msg_to_send))
@@ -751,9 +751,9 @@ class Server(object):
             for i in self.get_column_from_db("id", self.db["users"]):
                 if self.db["users"].get(i)["username"] == sender_username:
                     sender_id = str(i)
-            managers = self.db["chats"].get(int(sender_chat_id))["managers_id"].split(",")
+            managers = self.db["chats"].get(int(sender_chat_id))["managers_id"].split(",")  # list of str of managers ids
             if sender_id in managers:
-                manager = True
+                manager = True # make us know if the sender is a manager
             linker_two_id = None
             linker_username_two = None
             managers_ids = self.db["chats"].get(int(sender_chat_id))["managers_id"]
@@ -761,10 +761,10 @@ class Server(object):
             # SENDS THE MSG TO THE CHAT CONTACTS AND TO SAVE IT IN THE DB
             list_of_sockets_to_send = []
             # list_of_contacts = self.get_list_of_contacts(external_id)
-            list_of_contacts = self.db["chats"].get(sender_chat_id)["contacts"].split(',')
+            list_of_contacts = self.db["chats"].get(int(sender_chat_id))["contacts"].split(',')
             _list_of_contacts = list_of_contacts.copy()
             print(f"list of contacts = {list_of_contacts}")
-            contacts_with_linked = list_of_contacts
+            contacts_with_linked = _list_of_contacts
             for _id in self.get_column_from_db("id", self.db["chats"]):
                 if self.db["chats"].get(_id)["is_linked"] == 1 and str(
                         self.db["chats"].get(_id)["external_id"]) == external_id:
@@ -774,32 +774,34 @@ class Server(object):
             all_ids_in_users = self.get_column_from_db("id", self.db["users"])
             ids_to_send = []
             usernames_to_send = []
-            for contact in contacts_with_linked:
+            for contact in contacts_with_linked:  # list with the usernames of all the contacts and all the linked
                 if contact in self.clients.get_usernames():
                     for current_id in all_ids_in_users:
                         if self.db["users"].get(current_id)["username"] == contact:
                             ids_to_send.append(current_id)
                             usernames_to_send.append(contact)
                             break
-            list_of_contacts = _list_of_contacts
+            #list_of_contacts = _list_of_contacts
             print(f"1sender_username = {sender_username}    ,list_of_contacts = {list_of_contacts}")
             linker_username_two_is_manager = False
             is_sender_linked: bool = False
             linker_username = None
             linker_is_manager = False
             print(f"2sender_username = {sender_username}    ,list_of_contacts = {list_of_contacts}")
-            if sender_username not in list_of_contacts:
+            if sender_username not in list_of_contacts:################################################3
                 is_sender_linked = True
+                print('the sender is a linked ')
                 linker = self.db['users'].get(self.db["chats"].get(int(sender_chat_id))["linker_id"])
                 linker_username = linker["username"]
                 linker_id = self.db["chats"].get(int(sender_chat_id))["linker_id"]
                 if str(linker_id) in managers:
                     linker_is_manager = True
+                    print('the linker is also a manager')
 
             # now the usernames and the ids orgenized
             for i in range(len(usernames_to_send)):
                 username = usernames_to_send[i]
-                id_of_username = ids_to_send[i]
+                id_of_username = int(ids_to_send[i])
                 if username != sender_username:
                     socket = self.clients.get_socket(username)
                     sockets = [socket]
@@ -809,47 +811,44 @@ class Server(object):
                     for id in self.get_column_from_db("id", self.db["chats"]):
                         if str(self.db["chats"].get(id)["user_id"]) == str(id_of_username) and str(
                                 self.db["chats"].get(id)["external_id"]) == str(external_id):
-                            c = id
+                            c = id # the current chat id
                             break
                     is_user_linked = True
                     if username in list_of_contacts:
                         is_user_linked = False
 
-                    if is_user_linked and is_sender_linked:
+                    if is_user_linked is True and is_sender_linked is True:
                         for _id in self.get_column_from_db("id", self.db["user"]):
                             if self.db["users"].get(_id)["username"] == username:
                                 id_of_username = _id
                                 break
-                        for i in self.get_column_from_db("id", self.db["chats"]):
-                            chat = self.db["chats"].get(i)
+                        for t in self.get_column_from_db("id", self.db["chats"]):
+                            chat = self.db["chats"].get(t)
                             if id_of_username == chat["user_id"] and str(chat["external_id"]) == external_id:
                                 linker_two_id = chat["linker_id"]
-                                linker_username_two = self.db["users"].get(linker_two_id)
+                                linker_username_two = self.db["users"].get(linker_two_id)['username']
                                 break
-
-                        if linker_two_id in managers:
+                        print(f"linker_two_id = {linker_two_id},")
+                        if str(linker_two_id) in managers:
                             linker_username_two_is_manager = True
 
-                        if linker_is_manager:
+                        if linker_is_manager is True:
                             linker_username = "@" + linker_username
-                        if linker_username_two_is_manager:
+                        if linker_username_two_is_manager is True:
                             linker_username_two = "@" + linker_username_two
                         self.msg_maker(
                             f"private+*!?[{linker_username_two}][{linker_username}]{sender_username}+*!?{c}+*!?{msg}",
                             sockets)
                     print(f"is_user_linked= {is_user_linked}\nis_sender_linked= {is_sender_linked}")
-                    if is_user_linked == False and is_sender_linked:
+                    if is_user_linked is False and is_sender_linked is True:
+                        print(f"ttt {linker_username}")
                         if linker_is_manager:
                             self.msg_maker(f"private+*!?[@{linker_username}]{sender_username}+*!?{c}+*!?{msg}", sockets)
                         else:
                             self.msg_maker(f"private+*!?[{linker_username}]{sender_username}+*!?{c}+*!?{msg}", sockets)
-                    if is_user_linked and not is_sender_linked:
-                        if linker_username_two_is_manager:
-                            self.msg_maker(f"private+*!?[@{linker_username_two}]{sender_username}+*!?{c}+*!?{msg}",
-                                           sockets)
-                        else:
-                            self.msg_maker(f"private+*!?[{linker_username_two}]{sender_username}+*!?{c}+*!?{msg}",
-                                           sockets)
+                    if is_user_linked is True and is_sender_linked is False:
+                        print(f"pppp {linker_username_two_is_manager}")
+                        self.msg_maker(f"private+*!?[{linker_username}]{sender_username}+*!?{c}+*!?{msg}", sockets)
                     else:
                         if manager:
                             self.msg_maker(f"private+*!?@{sender_username}+*!?{c}+*!?{msg}", sockets)
@@ -1054,7 +1053,7 @@ class Server(object):
         f = self.db["files"].get(file_id)
         file_name = f["name"]
         value = f["value"]
-        msg_byte_object = (f"public_file+*!?+*!?{file_name}$$$").encode() + value
+        msg_byte_object = f"private_file+*!?+*!?{file_name}$$$".encode() + value
         sock = [self.clients.get_socket(self.db["users"].get(self.db["chats"].get(chat_id)["user_id"])['username'])]
         self.msg_maker(msg_byte_object, sock)
 

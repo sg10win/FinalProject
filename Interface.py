@@ -4,6 +4,8 @@ import time
 from datetime import datetime
 from tkinter import filedialog
 
+import tk
+
 from ClientInterface import Client
 from tkinter import *
 
@@ -24,6 +26,8 @@ class Interface(Client):
         self.right_frame = None
         self.last_right_frame = None
         self.last_last_right_frame = None
+        self.chat_frame = None
+        self.is_chat_time = True
 
         self.is_loaded = False
 
@@ -206,19 +210,33 @@ class Interface(Client):
         self.canvas.pack(side=LEFT, fill=BOTH, expand=TRUE)
         self.contacts_scrollbar.config(command=self.canvas.yview)
 
-        self.canvas.bind_all('<MouseWheel>', lambda: self._on_mouse)
+        self.canvas.bind_all('<MouseWheel>', self._on_mouse)
 
         # reset the view
-        # self.canvas.xview_moveto(0)
-        # self.canvas.yview_moveto(0)
+        self.canvas.xview_moveto(0)
+        self.canvas.yview_moveto(0)
+
+        self.interior = interior = Frame(self.canvas)
+        self.interior_id = self.canvas.create_window(0, 0, window=interior,
+                                           anchor=NW)
+
+        # track changes to the canvas and frame width and sync them,
+        # also updating the scrollbar
+
+
+        interior.bind('<Configure>', self._configure_interior)
+
+
+
+        self.canvas.bind('<Configure>', self._configure_canvas)
 
         # just to show how it will look like
         contacts = ["public"]
         for i in contacts:
-            self.button_frame = Frame(self.canvas)
-            self.button_frame.pack(fill=BOTH)
+            # self.button_frame = Frame(self.interior)
+            # self.button_frame.pack(fill=BOTH)
             # self.button_frames.append(self.buttons_frame)
-            self.button_try = Button(self.button_frame, text=i, width=18, bg="gray99", relief=FLAT, font=self.font,
+            self.button_try = Button(self.interior, text=i, width=18, bg="gray99", relief=FLAT, font=self.font,
                                      command=lambda: self._public_mode())
             self.button_try.pack(padx=10, pady=5, side=TOP)
 
@@ -283,7 +301,7 @@ class Interface(Client):
         self.send_button_frame.pack(fill=BOTH)
 
         # send button
-        self.send_button = Button(self.send_button_frame, text="Send", width=5, relief=GROOVE, bg='white',
+        self.send_button = Button(self.send_button_frame, text="Send", width=6, relief=GROOVE, bg='white',
                                   bd=1, command=lambda: self._send(), activebackground="#FFFFFF",
                                   activeforeground="#000000")
         self.send_button.pack(side=LEFT, ipady=2)
@@ -294,7 +312,7 @@ class Interface(Client):
         self.file_button.pack(side=RIGHT, padx=6, pady=6, ipady=2)
 
         # emoticons
-        self.emoji_button = Button(self.send_button_frame, text="*", width=2, relief=GROOVE, bg='white',
+        self.emoji_button = Button(self.send_button_frame, text="drive", width=4, relief=GROOVE, bg='white',
                                    bd=1, activebackground="#FFFFFF", command=lambda: self.emoji_options(),
                                    activeforeground="#000000")
         self.emoji_button.pack(side=RIGHT, padx=6, pady=6, ipady=2)
@@ -306,6 +324,19 @@ class Interface(Client):
         self._public_mode()
         self.is_loaded = True
 
+    def _configure_canvas(self, event):
+        if self.interior.winfo_reqwidth() != self.canvas.winfo_width():
+            # update the inner frame's width to fill the canvas
+            self.canvas.itemconfigure(self.interior_id, width=self.canvas.winfo_width())
+
+    def _configure_interior(self, event):
+        # update the scrollbars to match the size of the inner frame
+        size = (self.interior.winfo_reqwidth(), self.interior.winfo_reqheight())
+        self.canvas.config(scrollregion="0 0 %s %s" % size)
+        if self.interior.winfo_reqwidth() != self.canvas.winfo_width():
+            # update the canvas's width to fit the inner frame
+            self.canvas.config(width=self.interior.winfo_reqwidth())
+
     def last_sent_label(self, date):
         try:
             self.sent_label.destroy()
@@ -315,7 +346,7 @@ class Interface(Client):
         self.sent_label.pack(side=LEFT, fill=X, padx=3)
 
     def got_new_chat(self, chat_id, external_id, chat_name, contacts, new_msgs, is_private):
-        buttons_frame = Frame(self.canvas)
+        buttons_frame = Frame(self.interior)
         buttons_frame.pack(fill=BOTH)
         buttons_frame.configure(background=self.tl_bg2)
         b = PrivateChatButton(buttons_frame, chat_name, chat_id, external_id, contacts, new_msgs, is_private, self)
@@ -324,7 +355,7 @@ class Interface(Client):
         print("chat button created")
         self.button_frames.append(buttons_frame)
         self.buttons.append(b)
-        time.sleep(0.25)
+
 
     def got_chat_info(self, is_manager, is_linked, num_of_contacts, users_he_linked, contacts, managers, is_private):
         contacts = contacts.split(",")
@@ -498,6 +529,14 @@ class Interface(Client):
         notificationL = Label(self.master, text='try again', bg='firebrick2', width=25)
         notificationL.grid(row=5, column=0)
 
+
+
+    def save_chat(self):
+        pass
+
+    def clear_chat(self):
+        pass
+
     # returns the entry value and clears it
     def get_msg(self):
         message = self.entry_field.get()  # the entry value
@@ -509,20 +548,6 @@ class Interface(Client):
             pass
         return message  # the entry value only
 
-    def client_exit(self):
-        self.master.destroy()
-        print("df")
-        del self
-        exit()
-
-
-
-    def save_chat(self):
-        pass
-
-    def clear_chat(self):
-        pass
-
     def got_files_in_chat(self, ids, file_names, senders):
         self.files_selection_window = Toplevel(bg=self.tl_bg, )
 
@@ -533,11 +558,14 @@ class Interface(Client):
         self.files_selection_window.grab_set()
 
         close_frame = Frame(self.files_selection_window)
-        close_frame.pack(side=TOP)
-        close_button = Button(close_frame, text="Close", font="Verdana 9", relief=FLAT, bg=self.tl_bg,
+        close_frame.pack(side=BOTTOM)
+        close_button = Button(close_frame, text="Close", font="Verdana 9", relief=FLAT, bg=self.tl_bg2,
                               fg=self.tl_fg, activebackground=self.tl_bg,
                               activeforeground=self.tl_fg, command=self.close_emoji)
-        close_button.pack(side=TOP)
+        close_button.pack(side=BOTTOM)
+
+        title = Label(self.files_selection_window, text='Files', bg=self.tl_bg, font="Verdana 16")
+        title.pack(side=TOP)
 
         root_width = self.master.winfo_width()
         root_pos_x = self.master.winfo_x()
@@ -554,11 +582,19 @@ class Interface(Client):
         FilesFrame(self, self.files_selection_window, ids, file_names, senders)
 
     def open_new_chat_window(self):
+        if not self.is_chat_time:
+            return
+        self.is_chat_time = False
         self.last_right_frame = self.right_frame
+        self.chat_frame = self.right_frame
         NewChatInterface(self)
 
     def open_new_private_chat_window(self):
+        if not self.is_chat_time:
+            return
+        self.is_chat_time = False
         self.last_right_frame = self.right_frame
+        self.chat_frame = self.right_frame
         NewPrivateChatInterface(self)
 
     def _on_mouse(self, event):
@@ -566,15 +602,16 @@ class Interface(Client):
 
     def choose_file(self):
         file_path = filedialog.askopenfilename()
-        split = file_path.split('/')
-        file_name = len(split)
-        file_name = split[file_name - 1]
-        now = datetime.now()
-        current_time = now.strftime("%H:%M:%S")
-        file_name = "[" + current_time + "]" + file_name
-        message_to_display = f'{self.local_username}: sent a file {file_name}'
-        self.insert_to_text_box(message_to_display)
-        self._choose_file(file_path, file_name)
+        if file_path != '':
+            split = file_path.split('/')
+            file_name = len(split)
+            file_name = split[file_name - 1]
+            now = datetime.now()
+            current_time = now.strftime("%H:%M:%S")
+            file_name = "[" + current_time + "]" + file_name
+            message_to_display = f'{self.local_username}: sent a file {file_name}'
+            self.insert_to_text_box(message_to_display)
+            self._choose_file(file_path, file_name)
 
     def close_emoji(self):
         pass
@@ -590,12 +627,13 @@ class Interface(Client):
         thread = threading.Thread(target=temp._run)
         thread.start()
         roots.mainloop()
+        temp._client_exit()
 
     def public_mode(self):
-        if self.last_right_frame:
+        if self.chat_frame:
             self.right_frame.pack_forget()
-            self.last_right_frame.pack(fill=BOTH, expand=True)
-            self.right_frame = self.last_right_frame
+            self.chat_frame.pack(fill=BOTH, expand=True)
+            self.right_frame = self.chat_frame
         self.chat_info_button.configure(text="public")
         self.text_box.config(state=NORMAL)
         self.text_box.delete(1.0, END)

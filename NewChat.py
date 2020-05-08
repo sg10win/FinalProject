@@ -119,6 +119,7 @@ class NewChatInterface:
                 combobox.set('')
 
     def cancel(self, root):
+        self.ChatInterface.is_chat_time = True
         #self.nameE.insert(0, "")
         self.ChatInterface.right_frame = self.last_frame
         root.pack_forget()
@@ -135,7 +136,7 @@ class NewChatInterface:
 
     def new_chat (self):
         self.ChatInterface.mode = "DISABLE"
-        self.last_frame = self.ChatInterface.right_frame
+        self.last_frame = self.ChatInterface.chat_frame
         self.ChatInterface.last_right_frame = self.last_frame
         root = Frame(self.ChatInterface.master)
         self.ChatInterface.right_frame = root

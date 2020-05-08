@@ -27,10 +27,10 @@ class PrivateChatButton(Button):
         # FIRST THE ID AND THAN THE EXTERNAL
         msg = f"chat request+*!?{self.chat_id}+*!?{self.external_id}"
         self.client.mode = "ENABLE"
-        if self.client.last_right_frame:
+        if self.client.chat_frame:
             self.client.right_frame.pack_forget()
-            self.client.last_right_frame.pack(fill=BOTH, expand=True)
-            self.client.right_frame = self.client.last_right_frame
+            self.client.chat_frame.pack(fill=BOTH, expand=True)
+            self.client.right_frame = self.client.chat_frame
         self.configure(bg="gray99")
         self.client.chat_info_button.configure(text=self.chat_name)
         self.new_msgs = 0
