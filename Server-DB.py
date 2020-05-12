@@ -18,8 +18,7 @@ class Client(object):
         self._socket = socket
         self._key = key
         self._big_data = b""
-        self.time = None
-        self.code = None
+
 
     def get_username(self):
         return self._username
@@ -42,17 +41,6 @@ class Client(object):
     def set_big_data(self, big_data):
         self._big_data = big_data
 
-    def start_counting_down_forget_password(self):
-        self.time = int(round(time.time()))
-
-    def is_valid_code(self, code):
-        time_now = int(round(time.time()))
-        delta = abs(time_now - self.time)
-        if code != self.code:
-            return False
-        if delta < 300:
-            return True
-        return False
 
 
 class ListClients(object):
@@ -107,11 +95,7 @@ class ListClients(object):
                 # client = None
                 return
         raise Exception('There was no client with the username: ', username)
-        # new_client_list = []
-        # for client in self._clients:
-        #     if not client.get_username() == None:
-        #         new_client_list.append(client)
-        # self._clients = new_client_list
+
 
     def get_key_by_socket(self, socket):
         for client in self._clients:
@@ -132,22 +116,20 @@ class ListClients(object):
             if a:
                 a.set_big_data(data)
             else:
-                print("oy 2")
-        # for client_socket in self.get_sockets():
-        #     if client_socket == socket:
-        #        self._get_client_by_socket(client_socket).set_big_data(data)
+                pass
         else:
             raise Exception("socket not found in client list")
 
-
-# you need to remember to colse the database connection
 class Server(object):
     def __init__(self):
         self.ip = "0.0.0.0"
         self.port = 8080
         self.server_socket = socket.socket()
         self.server_socket.bind((self.ip, self.port))
-        self.server_socket.listen(5)
+        self.server_socket.listen(20)
+        self.wlist = None
+        self.rlist = None
+        self.xlist = None
         self.db = Database(sqlite3.connect("users_01.db"))
         print("opened database successfully")
         self.database_reset_temp()  # resets DB
@@ -443,10 +425,10 @@ class Server(object):
     def run(self):
         print("server started")
         while True:
-            rlist, wlist, xlist = select.select([self.server_socket] + self.clients.get_sockets(),
-                                                self.clients.get_sockets(), [], 0.01)
+            self.rlist, self.wlist, self.xlist = select.select([self.server_socket] + self.clients.get_sockets(),
+                                                               self.clients.get_sockets(), [], 0.01)
             # print(self.messages)
-            for current_socket in rlist:
+            for current_socket in self.rlist:
                 if current_socket is self.server_socket:
                     (new_socket, address) = self.server_socket.accept()
                     # self.open_client_sockets[
@@ -486,10 +468,10 @@ class Server(object):
                             data = data_list.pop(0)
                             temp_d = data.split(b'+*!?')
                             if len(temp_d) == 3:
-                                self.signup_process(data, current_socket, wlist)
+                                self.signup_process(data, current_socket, self.wlist)
                             if len(temp_d) == 2:
-                                self.login_process(data, current_socket, wlist)
-                        if data_list != []:
+                                self.login_process(data, current_socket, self.wlist)
+                        elif data_list != []:
                             print("decipher after logging")
                             for data in data_list:
                                 self.decifer(data, current_socket)
@@ -498,8 +480,8 @@ class Server(object):
                         print("only decipher")
                         for data in data_list:
                             self.decifer(data, current_socket)
-            #time.sleep(0.02)
-            self.send_waiting_messages(wlist)
+            # time.sleep(0.02)
+            self.send_waiting_messages(self.wlist)
 
     def send_waiting_messages(self, wlist):
         for message in self.messages:
@@ -593,10 +575,12 @@ class Server(object):
     def check_client_exit(self, data):
         if len(data.split(b'+*!?')) == 2:
             tmp = data.split(b'+*!?')
-            if tmp[1] == b'NAK':
-                # print(tmp[0].decode("utf-8") + " has logedout")
-                self.clients.remove_client(tmp[0].decode('utf-8'))
-                # print('exit client: ', tmp[0].decode('utf-8'))
+            if tmp[0] == b'NAK':
+                print("here")
+                try:
+                    self.clients.remove_client(tmp[0].decode('utf-8'))
+                except:
+                    pass
                 return False
         return True
 
@@ -620,14 +604,15 @@ class Server(object):
                     self.db["chats"].update(chat_id, {"new_msgs": new_msgs})
 
     def decifer(self, data, current_socket):
-        '''___TODO___'''
-        # print('enter decifer')
         if data.split(b'+*!?')[0].decode('utf-8') == 'NAK':
             data = data.decode('utf-8').split("+*!?")
             print(f"NAK data: {data}")
             username = data[1]
-            self.update_db_after_client_NAK(data)
-            self.clients.remove_client(username)
+            try:
+                self.update_db_after_client_NAK(data)
+                self.clients.remove_client(username)
+            except:
+                print('already NAKed')
         elif data.split(b'+*!?')[0].decode('utf-8') == "exit chat":
             print("got exit chat request")
             data = data.decode("utf-8").split("+*!?")
@@ -659,6 +644,7 @@ class Server(object):
             chat_id = tmp[1]
             file_id = tmp[2]
             self.send_file_to_client(chat_id, file_id)
+            print("sent the file to the client")
         elif data.split(b'+*!?')[0].decode('utf-8') == "create private chat":
             tmp = data.split(b'+*!?')
             username_1 = tmp[1].decode('utf-8')
@@ -751,9 +737,10 @@ class Server(object):
             for i in self.get_column_from_db("id", self.db["users"]):
                 if self.db["users"].get(i)["username"] == sender_username:
                     sender_id = str(i)
-            managers = self.db["chats"].get(int(sender_chat_id))["managers_id"].split(",")  # list of str of managers ids
+            managers = self.db["chats"].get(int(sender_chat_id))["managers_id"].split(
+                ",")  # list of str of managers ids
             if sender_id in managers:
-                manager = True # make us know if the sender is a manager
+                manager = True  # make us know if the sender is a manager
             linker_two_id = None
             linker_username_two = None
             managers_ids = self.db["chats"].get(int(sender_chat_id))["managers_id"]
@@ -781,14 +768,14 @@ class Server(object):
                             ids_to_send.append(current_id)
                             usernames_to_send.append(contact)
                             break
-            #list_of_contacts = _list_of_contacts
+            # list_of_contacts = _list_of_contacts
             print(f"1sender_username = {sender_username}    ,list_of_contacts = {list_of_contacts}")
             linker_username_two_is_manager = False
             is_sender_linked: bool = False
             linker_username = None
             linker_is_manager = False
             print(f"2sender_username = {sender_username}    ,list_of_contacts = {list_of_contacts}")
-            if sender_username not in list_of_contacts:################################################3
+            if sender_username not in list_of_contacts:  ################################################3
                 is_sender_linked = True
                 print('the sender is a linked ')
                 linker = self.db['users'].get(self.db["chats"].get(int(sender_chat_id))["linker_id"])
@@ -811,7 +798,7 @@ class Server(object):
                     for id in self.get_column_from_db("id", self.db["chats"]):
                         if str(self.db["chats"].get(id)["user_id"]) == str(id_of_username) and str(
                                 self.db["chats"].get(id)["external_id"]) == str(external_id):
-                            c = id # the current chat id
+                            c = id  # the current chat id
                             break
                     is_user_linked = True
                     if username in list_of_contacts:
@@ -879,7 +866,8 @@ class Server(object):
                 if username in self.clients.get_usernames():
                     list_client = [self.clients.get_socket(username)]
                     self.msg_maker("new chat+*!?" + str(self.last_id) + "+*!?" + str(
-                        chat_external_id) + "+*!?" + linked_chat_name + "+*!?" + contacts + "+*!?" + "1+*!?"+str(False), list_client)
+                        chat_external_id) + "+*!?" + linked_chat_name + "+*!?" + contacts + "+*!?" + "1+*!?" + str(
+                        False), list_client)
                     # print("sent after it=>"+"new chat%%%" + str(self.last_id) + "%%%" + str(random_external_id) + "%%%" + chat_name + "%%%" + contacts + "%%%" + new_chat_msg)
                 self.last_id = self.last_id + 1
 
@@ -925,13 +913,10 @@ class Server(object):
                 client.send(message.encode('utf-8'))
 
     def signup_process(self, data, curret_socket, wlist):
-        '''__TODO__ SEND THIS PARAMS TO THE DATABASE'''
-        '''THE PROTOCLOL IS SIMPLE <EMAIL>%%%<USERNAME>%%%<HASHED PASSWORD>'''
         arr = data.split(b'+*!?')
         email = arr[0].decode()
         username = arr[1].decode()
         hashed_pass = arr[2].decode()
-        # print("username= ", username, 'email= ', email, "hashed_pass= ", hashed_pass)
         boolean = self.save_new_user_to_database(curret_socket, email, username, hashed_pass)
         if boolean == True:
             self.send_waiting_messages(wlist)
@@ -952,7 +937,7 @@ class Server(object):
         for chat_id in chat_ids:
             chat = self.db["chats"].get(chat_id)
             if str(chat['external_id']) == _chat_external_id:
-                self.db['chats'].update(chat_id,{"contacts": contacts_in_chat_after_remove})
+                self.db['chats'].update(chat_id, {"contacts": contacts_in_chat_after_remove})
                 if self.db["users"].get(chat["user_id"])["username"] in self.clients.get_usernames() and \
                         self.db["users"].get(chat["user_id"])["username"] != username:
                     msg_to_send = f"private+*!?Server+*!?{chat_id}+*!?{username} left"
@@ -1056,6 +1041,8 @@ class Server(object):
         msg_byte_object = f"private_file+*!?+*!?{file_name}$$$".encode() + value
         sock = [self.clients.get_socket(self.db["users"].get(self.db["chats"].get(chat_id)["user_id"])['username'])]
         self.msg_maker(msg_byte_object, sock)
+        print("google")
+        self.send_waiting_messages(self.wlist)
 
     def forgot_password_process(self, username):
         client = self.clients.get_client_by_username(username)
@@ -1080,7 +1067,7 @@ class Server(object):
 
         id_to_add = None
         is_exists = False
-        for i in self.get_column_from_db('id',self.db['users']):
+        for i in self.get_column_from_db('id', self.db['users']):
             user = self.db["users"].get(i)
             if user['username'] == username_to_add:
                 is_exists = True
@@ -1091,7 +1078,6 @@ class Server(object):
             return
         if username_to_add in contacts_split:
             print(contacts_split)
-            print(f"hererererer2")
             return
         else:
 
@@ -1105,8 +1091,8 @@ class Server(object):
                     print(f'this is new_contacts_string={new_contacts_string}')
                     self.db['chats'].update(i, {"contacts": new_contacts_string})
                     user_name = self.db['users'].get(self.db['chats'].get(i)['user_id'])["username"]
-                    if  user_name in self.clients.get_usernames():
-                        #msg_to_save = f"private+*!?Server+*!?{i}+*!?{external_id}+*!?{user_name} added"
+                    if user_name in self.clients.get_usernames():
+                        # msg_to_save = f"private+*!?Server+*!?{i}+*!?{external_id}+*!?{user_name} added"
                         msg = f"private+*!?Server+*!?{i}+*!?{username_to_add} added"
                         self.msg_maker(msg, [self.clients.get_socket(user_name)])
             msg_to_save = f"private+*!?Server+*!?{chat_id}+*!?{external_id}+*!?{username_to_add} added"
@@ -1125,7 +1111,6 @@ class Server(object):
                                + "+*!?" + new_contacts_string + "+*!?" + "1+*!?" + str(False), list_client)
             print("gooooogoogoogogo")
             self.last_id += 1
-
 
 
 Server().run()

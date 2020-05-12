@@ -56,9 +56,19 @@ class Interface(Client):
         self.file_button = None
         self.emoji_button = None
         self.sent_label = None
+        self.interior = None
+        self.button_frame = None
 
+        # login variables
         self.nameEL = None
         self.pwordEL = None
+
+        # signup variables
+        self.emailE = None
+        self.nameE = None
+        self.pwordE = None
+        self.re_pwordE = None
+        self.notification_l = None
 
         self.button_frames = []
         self.buttons = []
@@ -68,8 +78,8 @@ class Interface(Client):
     def sign_up_time(self):
         self.delete_all_in_root()
         # This creates the window, just a blank one.
-        self.master.geometry('360x185')
-        self.master.resizable(width=False, height=False)
+        self.master.geometry('420x200')
+        #self.master.resizable(width=False, height=False)
         self.master.title('Signup')  # This renames the title of said window to 'signup'
         intruction = Label(self.master,
                            text='Please signup\n')  # This puts a label, so just a piece of text saying 'please enter blah'
@@ -87,29 +97,28 @@ class Interface(Client):
         pwordL.grid(row=3, column=0, sticky=W)  # ^^
         re_pwordL.grid(row=4, column=0, sticky=W)
 
-        emailE = Entry(self.master, width=30)  # This now puts a text box waiting for input.
-        nameE = Entry(self.master, width=30)  # ^^
-        pwordE = Entry(self.master, show='*',
+        self.emailE = Entry(self.master, width=30)  # This now puts a text box waiting for input.
+        self.nameE = Entry(self.master, width=30)  # ^^
+        self.pwordE = Entry(self.master, show='*',
                        width=30)  # Same as above, yet 'show="*"' What this does is replace the text with *, like a password box :D
-        re_pwordE = Entry(self.master, show='*', width=30)  # ^^
-        emailE.grid(row=1, column=1)
-        nameE.grid(row=2, column=1)  # You know what this does now :D
-        pwordE.grid(row=3, column=1)  # ^^
-        re_pwordE.grid(row=4, column=1)
-        # print("befor")
+        self.re_pwordE = Entry(self.master, show='*', width=30)  # ^^
+        self.emailE.grid(row=1, column=1)
+        self.nameE.grid(row=2, column=1)
+        self.pwordE.grid(row=3, column=1)
+        self.re_pwordE.grid(row=4, column=1)
 
         submit_Button = Button(self.master, text='submit', width=25, bg="DodgerBlue2",
-                               command=lambda: self.chack_Signup(self.master))
+                               command=lambda: self._sign_up())
         # This creates the button with the text 'signup', when you click it, the command 'fssignup' will run. which is the def
         # print("after")
         submit_Button.grid(row=5, column=1, sticky="e")
-        loginB = Button(self.master, text='Login',
-                        command=lambda: self.Login(self.master))
+        loginB = Button(self.master, text='Login',command=lambda: self.log_in_time())
         # This makes the login button, which will go to the Login def.
         loginB.grid(columnspan=2, sticky=W)
         self.master.mainloop()  # This just makes the window keep open, we will destroy it soon
 
     def log_in_time(self):
+        self.delete_all_in_root()
         intruction = Label(self.master, text='Please Login\n')  # More labels to tell us what they do
         intruction.grid(sticky=E)  # Blahdy Blah
 
@@ -126,11 +135,9 @@ class Interface(Client):
         forgot_pass_button = Button(self.master, text='forgot password?', bg="orange")
         forgot_pass_button.grid(column=1, row=3)
 
-        login_b = Button(self.master, text='Login', bg="green",
-                         command=self._log_in)  # This makes the login button, which will go to the CheckLogin def.
+        login_b = Button(self.master, text='Login', bg="green", command= self._log_in)
         login_b.grid(columnspan=2, row=3, sticky=W)
-        signup_b = Button(self.master, text="Signup", bg="blue",
-                          command=lambda: self._sign_up())  # This makes the login button, which will go to the CheckLogin def.
+        signup_b = Button(self.master, text="Signup", bg="blue", command=lambda: self.sign_up_time())
         signup_b.grid(columnspan=2, column=2, row=3)
 
     def chat_time(self):
@@ -155,7 +162,7 @@ class Interface(Client):
         # File
         file = Menu(menu, tearoff=0)
         menu.add_cascade(label="File", menu=file)
-        file.add_command(label="Save Chat Log", command=self.save_chat)
+        #file.add_command(label="Save Chat Log", command=self.save_chat)
         file.add_command(label="Clear Chat", command=self.clear_chat)
         file.add_separator()
         file.add_command(label="Logout", command=self._client_exit)
@@ -233,9 +240,9 @@ class Interface(Client):
         # just to show how it will look like
         contacts = ["public"]
         for i in contacts:
-            # self.button_frame = Frame(self.interior)
-            # self.button_frame.pack(fill=BOTH)
-            # self.button_frames.append(self.buttons_frame)
+            self.button_frame = Frame(self.interior)
+            self.button_frame.pack(fill=BOTH)
+            self.button_frames.append(self.interior)
             self.button_try = Button(self.interior, text=i, width=18, bg="gray99", relief=FLAT, font=self.font,
                                      command=lambda: self._public_mode())
             self.button_try.pack(padx=10, pady=5, side=TOP)
@@ -423,6 +430,7 @@ class Interface(Client):
     def color_theme_default(self):
         self.contacts_frame.config(bg="#EEEEEE")
         self.canvas.config(bg="#EEEEEE")
+        self.interior.config(bg="#EEEEEE")
         self.master.config(bg="#EEEEEE")
         self.text_frame.config(bg="#EEEEEE")
         self.entry_frame.config(bg="#EEEEEE")
@@ -457,6 +465,7 @@ class Interface(Client):
         self.set_color_to_chat_button_frames("#003333")
         self.button_frame.configure(background="#003333")
         self.canvas.configure(background="#003333")
+        self.interior.config(bg="#003333")
         # self.write_args_in_file("args.txt")
 
     def color_theme_hacker(self):
@@ -477,6 +486,8 @@ class Interface(Client):
         self.set_color_to_chat_button_frames("#0F0F0F")
         self.button_frame.configure(background="#0F0F0F")
         self.canvas.configure(background="#0F0F0F")
+        self.interior.config(bg="#0F0F0F")
+
         # self.write_args_in_file("args.txt")
 
     def color_theme_dark_blue(self):
@@ -496,6 +507,8 @@ class Interface(Client):
         self.set_color_to_chat_button_frames("#263b54")
         self.button_frame.configure(background="#263b54")
         self.canvas.configure(background="#263b54")
+        self.interior.config(bg="#263b54")
+
         # self.write_args_in_file("args.txt")
 
     def default_format(self):
@@ -514,10 +527,47 @@ class Interface(Client):
                 _list.extend(item.winfo_children())
         return _list
 
+    def signed_up(self):
+        if self.notification_l:
+            self.notification_l.destroy()
+        self.notification_l = Label(self.master, text="signed_in successfully", bg='SpringGreen2', width=25)
+        self.notification_l.grid(row=5, column=0)
+        self.master.update()
+        time.sleep(0.25)
+        self.delete_all_in_root()
+        self.log_in_time()
+
+    def basic_signup_errors(self):
+        if self.notification_l:
+            self.notification_l.destroy()
+        self.notification_l = Label(self.master, text="make sure you filed all\n"
+                                                "and the password is\n"
+                                                "same as the re_password ", bg='firebrick2', width=25)
+        self.notification_l.grid(row=5, column=0)
+
+    def failed_sign_up(self, command):
+        text = command.decode('utf-8')
+        if self.notification_l:
+            self.notification_l.destroy()
+        self.notification_l = Label(self.master, text=text, bg='firebrick2', width=25)
+        self.notification_l.grid(row=5, column=0)
+
     def get_username_and_password(self):
         self.username = self.nameEL.get()
         self.password = self.pwordEL.get()
         return self.username, self.password
+
+    def get_username_passwords_and_mail(self):
+        email = self.emailE.get()
+        username = self.nameE.get()
+        password = self.pwordE.get()
+        re_password = self.re_pwordE.get()
+        if email is not "" and username is not "" and len(password) > 5 and password == re_password:
+            return username, password, re_password, email
+        else:
+            self.basic_signup_errors()
+            return None
+
 
     def loged_in(self):
         notificationL = Label(self.master, text="log-in ", bg='SpringGreen2', width=18)

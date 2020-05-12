@@ -1,7 +1,9 @@
 import time
 from tkinter import *
 
+
 class NewPrivateChatInterface(object):
+
     def __init__(self, client):
         self.client = client
         self.last_frame = None
@@ -23,7 +25,8 @@ class NewPrivateChatInterface(object):
         frame = Frame(self.root, bg=self.tl_bg)
         title_l = Label(self.root, text="New private chat", font=(self.font, 16), bg=self.tl_bg, fg=self.tl_fg)
         self.entry = Entry(frame, font=self.font)
-        create_button = Button(frame, text='Create', relief=FLAT, bg="green2", command=lambda: self.create_private_chat_group())
+        create_button = Button(frame, text='Create', relief=FLAT, bg="green2",
+                               command=lambda: self.create_private_chat_group())
         cancel_button = Button(frame, text='Cancel', relief=FLAT, bg='red', command=lambda: self.cancel())
         label = Label(frame, text='Enter contact', bg=self.tl_bg, fg=self.tl_fg)
 
@@ -35,7 +38,6 @@ class NewPrivateChatInterface(object):
 
         label.grid(row=1, column=0)
         self.entry.grid(row=1, column=1)
-
 
         title_l.grid(sticky="new")
         frame.grid(sticky="ew")

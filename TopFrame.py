@@ -4,15 +4,13 @@ from tkinter import messagebox
 
 
 
-class TopFrameObject():
+class TopFrameObject(object):
 
     def __init__(self, client):
         self.client = client
 
-
     # this function is for the info button
     def chat_info_request(self):
-        # TODO here I can make a better graphics option then to desplay it on the textbox
         if self.client.current_id == "public":
             public_chat_info_msg = "This is a public chat.\nAll the system's clients can get and send msgs here"
             self.client.text_box.config(state=NORMAL)

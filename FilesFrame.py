@@ -13,10 +13,7 @@ class FileButton(Button):
         self.file_id = file_id
         self.name = name
         self.sender = sender
-        try:
-            t = int(file_id)
-        except:
-            return
+
         self.pack()
 
     def get_file_value(self):

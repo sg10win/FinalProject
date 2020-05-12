@@ -128,13 +128,7 @@ class NewChatInterface:
         self.ChatInterface.text_box.delete(1.0, END)
         self.ChatInterface.text_box.configure(state=DISABLED)
 
-
-        #
-        #
-        #######
-
-
-    def new_chat (self):
+    def new_chat(self):
         self.ChatInterface.mode = "DISABLE"
         self.last_frame = self.ChatInterface.chat_frame
         self.ChatInterface.last_right_frame = self.last_frame
@@ -145,13 +139,10 @@ class NewChatInterface:
 
         left = Frame(root)
         left.grid(column=0, row=1)
-        #labelTopL = ttk.Label(root,text="add here: ")
-        #labelTopL.grid(column=0, row=1)
+
         comboExampleL = ttk.Combobox(left,width=28,
                                     values=[])
         comboExampleL.grid(column=0, row=2)
-        #labelTopR = ttk.Label(root, text="remove here: ")
-        #labelTopR.grid(column=0, row=2)
         comboExampleR = ttk.Combobox(left,width=28,
                                     values=[])
         comboExampleR.grid(column=0, row=3)
@@ -213,16 +204,8 @@ class NewChatInterface:
         text_box.config(bg=self.tl_bg, fg=self.tl_fg, font=self.font)
         left.config(bg=self.tl_bg2)
         title_l.config(bg=self.tl_bg, fg=self.tl_fg)
-        #createB.config(bg=self.tl_bg, fg=self.tl_fg, activebackground=self.tl_bg, activeforeground=self.tl_fg, font=self.font)
-        #removeB.config(bg=self.tl_bg, fg=self.tl_fg, activebackground=self.tl_bg, activeforeground=self.tl_fg, font=self.font)
-        #addB.config(bg=self.tl_bg, fg=self.tl_fg, activebackground=self.tl_bg, activeforeground=self.tl_fg, font=self.font)
-        #cancelB.config(bg=self.tl_bg, fg=self.tl_fg, activebackground=self.tl_bg, activeforeground=self.tl_fg, font=self.font)
-        #labelTopL.config(background=self.tl_bg, foreground=self.tl_fg, font=self.font)
-        #labelTopR.config(background=self.tl_bg, foreground=self.tl_fg, font=self.font )
-        #nameL.config(background=self.tl_bg, foreground=self.tl_fg, font=self.font)
-        #comboExampleL.config(background=self.tl_bg, foreground=self.tl_fg, activebackground=self.tl_bg, activeforeground=self.tl_fg)
-        #comboExampleR.config(background=self.tl_bg, foreground=self.tl_fg, activebackground=self.tl_bg, activeforeground=self.tl_fg)
         root.mainloop()
+
 def on_entry_click(event, entry, text):
     """function that gets called whenever entry is clicked"""
     if entry.get() == text:

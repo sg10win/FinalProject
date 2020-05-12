@@ -38,7 +38,7 @@ class Client(object):
         self.mode = 'ENABLE'
         self.chat_id = None
 
-        self.documents_folder = "pics/"
+        self.documents_folder = "downloads/"
 
     def _connect_to_server(self):
         self.my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -65,6 +65,29 @@ class Client(object):
         msg_to_server = username + "+*!?" + hashed_password
         self.messages_to_send.append(msg_to_server)
 
+    def get_username_passwords_and_mail(self):
+        email = input('enter email')
+        username = input('enter username')
+        password = input('enter password')
+        re_password = input('enter re_password')
+        return username, password, re_password, email
+
+    def _sign_up(self):
+        temp = self.get_username_passwords_and_mail()
+        if temp:
+            username, password, re_password, email = temp
+            if password == re_password and username != "" and email != "" and password != "" and re_password != "":
+                hashed_password = (hashlib.md5(password.encode())).hexdigest()
+                msg_to_server = email + "+*!?" + username + "+*!?" + hashed_password
+                self.messages_to_send.append(msg_to_server)
+
+    def signed_up(self):
+        print("signup process done")
+        pass
+
+    def failed_sign_up(self, command):
+        print(command.decode('utf-8'))
+
     def loged_in(self):
         print('log in')
 
@@ -83,16 +106,8 @@ class Client(object):
     def get_email(self):
         return input('enter email')
 
-    def _sign_up(self):
-        username = self.get_username()
-        password = self.get_password()
-        re_password = self.get_re_password()
-        email = self.get_email()
-        if password == re_password and username != "" and email != "" and password != "" and re_password != "" and len(
-                password) > 0:
-            hashed_password = (hashlib.md5(password.encode())).hexdigest()
-            msg_to_server = email + "+*!?" + username + "+*!?" + hashed_password
-            self.messages_to_send.append(msg_to_server)
+    def _signed_up(self):
+        pass
 
     def _got_public_message(self, message):
         print("got public message")
@@ -192,7 +207,7 @@ class Client(object):
         self.got_new_chat(chat_id, external_id, chat_name, contacts, new_msgs, is_private)
 
     def got_new_chat(self, chat_id, external_id, chat_name, contacts, new_msgs, is_private):
-        print(")#*@$*(+@_#*$)*+@)#($*_*@()#$@)(#$_**@********ITS HERE")
+        pass
 
     def _got_files_in_chat(self, message):
         print("got files in chat message")
@@ -214,11 +229,11 @@ class Client(object):
 
     def _got_private_file(self, message):
         splited = message[2]
-
         file_info = splited.split(b"$$$")
-        file_name = file_info[0].decode('utf-8')[10:]  # withou the time part because it is unvalid
+        file_name = file_info[0].decode('utf-8')[10:]  # with out the time part because it is unvalid
         file = file_info[1]
-        with open(self.documents_folder + file_name, 'wb') as f:
+        print("downloading file")
+        with open(file_name, 'wb') as f:
             f.write(file)
             f.close()
 
@@ -273,7 +288,20 @@ class Client(object):
         print(message)
 
     def _messages_connected(self):
+        # print(f"my big big big data = {self.big_data}")
+        # msg_split1 = self.big_data.split("End_Seg")
+        # print(f"len = {len(msg_split1)}, list = {msg_split1}")
+        #
+        # for i in range(len(msg_split1) - 1):
+        #     mini_part = msg_split1[i]
+        #     mini_part = mini_part.split("Start_Seg")[1]
+        #     print(f"mini_part = {mini_part}")
+        #     data = mini_part
+        #     mini_part = Encryption.decrypt(data.encode(), self.key)
+        #     self.message_q.put(mini_part)
+        # self.big_data = msg_split1[len(msg_split1) - 1]
         print(f"my big big big data = {self.big_data}")
+        # self.big_data = self.big_data
         msg_split1 = self.big_data.split("End_Seg")
         print(f"len = {len(msg_split1)}, list = {msg_split1}")
 
@@ -281,7 +309,8 @@ class Client(object):
             mini_part = msg_split1[i]
             mini_part = mini_part.split("Start_Seg")[1]
             print(f"mini_part = {mini_part}")
-            data = mini_part
+            # key = mini_part.split("%%%")[0]
+            data = mini_part  # .split("%%%")[1]
             mini_part = Encryption.decrypt(data.encode(), self.key)
             self.message_q.put(mini_part)
         self.big_data = msg_split1[len(msg_split1) - 1]
@@ -291,14 +320,15 @@ class Client(object):
         print(msg)
         split_msg = msg.split(b'+*!?')
         command = split_msg[0]
+        print(f"command= {command}")
         if command == b'signed in successfully':
             self.signed_up()
         if command == b'This email and username are\n currently in use':
-            self.failed_sign_up()
+            self.failed_sign_up(command)
         if command == b'This email is currently in use':
-            self.failed_sign_up()
+            self.failed_sign_up(command)
         if command == b'This username is currently in use':
-            self.failed_sign_up()
+            self.failed_sign_up(command)
         if command == b'loged-in':
             self.loged_in()
         if command == b'try again':
@@ -316,6 +346,7 @@ class Client(object):
         if command == b'files_request':
             self._got_files_request(split_msg)
         if command == b'private_file':
+            print("private filllellelel")
             self._got_private_file(split_msg)
 
     def _run(self):
@@ -323,7 +354,7 @@ class Client(object):
             self.r_list, self.w_list, self.x_list = select.select([self.my_socket], [self.my_socket], [])
             if self.my_socket in self.r_list:
                 data = self.my_socket.recv(1024).decode('utf-8')
-                self.big_data += data
+                self.big_data = self.big_data + data
                 self._messages_connected()
                 self._handle_message()
 
@@ -333,7 +364,7 @@ class Client(object):
                     return
 
             self._send_messages()
-            time.sleep(0.25)
+            time.sleep(0.2)
             if type(self) == Client:
                 self._enter_command()
                 time.sleep(0.25)
@@ -345,5 +376,9 @@ class Client(object):
     def run(ip='127.0.0.1', port=8080):
         client = Client(ip=ip, port=port)
         client._run()
+
+
+
+
 
 
