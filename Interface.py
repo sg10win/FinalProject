@@ -6,7 +6,7 @@ from tkinter import filedialog
 
 import tk
 
-from ClientInterface import Client
+from ClientInterface import ClientInterface
 from tkinter import *
 
 from FilesFrame import FilesFrame
@@ -16,10 +16,10 @@ from TopFrame import TopFrameObject
 from private_chat_buttons import PrivateChatButton
 from pygame import mixer
 
-class Interface(Client):
+class Interface(ClientInterface):
 
     def __init__(self, roots):
-        Client.__init__(self, ip='127.0.0.1', port=8080)
+        ClientInterface.__init__(self, ip='127.0.0.1', port=8080)
 
         self.master = roots
 
@@ -312,7 +312,7 @@ class Interface(Client):
                                   bd=1, command=lambda: self._send(), activebackground="#FFFFFF",
                                   activeforeground="#000000")
         self.send_button.pack(side=LEFT, ipady=2)
-        self.master.bind("<Return>", lambda: self.send_message_event())
+        self.master.bind("<Return>", self.send_message_event)
         self.file_button = Button(self.send_button_frame, text="file", width=4, relief=GROOVE, bg='white',
                                   bd=1, command=self.choose_file, activebackground="#FFFFFF",
                                   activeforeground="#000000")
@@ -349,7 +349,7 @@ class Interface(Client):
             self.sent_label.destroy()
         except AttributeError:
             pass
-        self.sent_label = Label(self.entry_frame, font="Verdana 7", text=date, bg=self.tl_bg2, fg=self.tl_fg)
+        self.sent_label = Label(self.entry_frame, font="Verdana 6", text=date, bg=self.tl_bg2, fg=self.tl_fg)
         self.sent_label.pack(side=LEFT, fill=X, padx=3)
 
     def got_new_chat(self, chat_id, external_id, chat_name, contacts, new_msgs, is_private):
@@ -438,6 +438,8 @@ class Interface(Client):
         self.entry_field.config(bg="#FFFFFF", fg="#000000", insertbackground="#000000")
         self.send_button_frame.config(bg="#EEEEEE")
         self.send_button.config(bg="#FFFFFF", fg="#000000", activebackground="#FFFFFF", activeforeground="#000000")
+        self.file_button.config(bg="#FFFFFF", fg="#000000", activebackground="#FFFFFF", activeforeground="#000000")
+        self.emoji_button.config(bg="#FFFFFF", fg="#000000", activebackground="#FFFFFF", activeforeground="#000000")
         self.sent_label.config(bg="#EEEEEE", fg="#000000")
 
         self.tl_bg = "#FFFFFF"
@@ -457,6 +459,8 @@ class Interface(Client):
         self.entry_field.config(bg="#669999", fg="#FFFFFF", insertbackground="#FFFFFF")
         self.send_button_frame.config(bg="#003333")
         self.send_button.config(bg="#669999", fg="#FFFFFF", activebackground="#669999", activeforeground="#FFFFFF")
+        self.file_button.config(bg="#669999", fg="#FFFFFF", activebackground="#669999", activeforeground="#FFFFFF")
+        self.emoji_button.config(bg="#669999", fg="#FFFFFF", activebackground="#669999", activeforeground="#FFFFFF")
         self.sent_label.config(bg="#003333", fg="#FFFFFF")
 
         self.tl_bg = "#669999"
@@ -479,6 +483,8 @@ class Interface(Client):
         self.entry_field.config(bg="#0F0F0F", fg="#33FF33", insertbackground="#33FF33")
         self.send_button_frame.config(bg="#0F0F0F")
         self.send_button.config(bg="#0F0F0F", fg="#FFFFFF", activebackground="#0F0F0F", activeforeground="#FFFFFF")
+        self.file_button.config(bg="#0F0F0F", fg="#FFFFFF", activebackground="#0F0F0F", activeforeground="#FFFFFF")
+        self.emoji_button.config(bg="#0F0F0F", fg="#FFFFFF", activebackground="#0F0F0F", activeforeground="#FFFFFF")
 
         self.tl_bg = "#0F0F0F"
         self.tl_bg2 = "#0F0F0F"
@@ -499,6 +505,8 @@ class Interface(Client):
         self.entry_field.config(bg="#1c2e44", fg="#FFFFFF", insertbackground="#FFFFFF")
         self.send_button_frame.config(bg="#263b54")
         self.send_button.config(bg="#1c2e44", fg="#FFFFFF", activebackground="#1c2e44", activeforeground="#FFFFFF")
+        self.file_button.config(bg="#1c2e44", fg="#FFFFFF", activebackground="#1c2e44", activeforeground="#FFFFFF")
+        self.emoji_button.config(bg="#1c2e44", fg="#FFFFFF", activebackground="#1c2e44", activeforeground="#FFFFFF")
         self.sent_label.config(bg="#263b54", fg="#FFFFFF")
 
         self.tl_bg = "#1c2e44"
@@ -609,12 +617,13 @@ class Interface(Client):
 
         close_frame = Frame(self.files_selection_window)
         close_frame.pack(side=BOTTOM)
-        close_button = Button(close_frame, text="Close", font="Verdana 9", relief=FLAT, bg=self.tl_bg2,
-                              fg=self.tl_fg, activebackground=self.tl_bg,
-                              activeforeground=self.tl_fg, command=self.close_emoji)
+        close_button = Button(close_frame, text="Close", font="Verdana 9", relief=FLAT, bg=self.tl_bg,
+                              fg=self.tl_fg, activebackground=self.tl_bg2,
+                              activeforeground=self.tl_fg, command=lambda: self.close_emoji)
         close_button.pack(side=BOTTOM)
 
-        title = Label(self.files_selection_window, text='Files', bg=self.tl_bg, font="Verdana 16")
+        title = Label(self.files_selection_window, text='Files', bg=self.tl_bg, font="Verdana 16",
+                      fg=self.tl_fg, activebackground=self.tl_bg2, activeforeground=self.tl_fg,)
         title.pack(side=TOP)
 
         root_width = self.master.winfo_width()

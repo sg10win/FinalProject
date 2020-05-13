@@ -9,7 +9,7 @@ from datetime import datetime
 from Encryption import *
 
 
-class Client(object):
+class ClientInterface(object):
     def __init__(self, ip='127.0.0.1', port=8080):
         self.ip = ip
         self.port = port
@@ -233,7 +233,7 @@ class Client(object):
         file_name = file_info[0].decode('utf-8')[10:]  # with out the time part because it is unvalid
         file = file_info[1]
         print("downloading file")
-        with open(file_name, 'wb') as f:
+        with open(self.documents_folder+file_name, 'wb') as f:
             f.write(file)
             f.close()
 
@@ -243,6 +243,8 @@ class Client(object):
     def _send(self):
         message = self.get_msg()
         msg_to_send = ''
+        if message == '':  # no text in the message
+            return
         if self.mode == 'ENABLE':
             if self.current_id == "public":  # in public chat ...
                 msg_to_send = "public+*!?" + self.username + "+*!?" + message
@@ -304,16 +306,30 @@ class Client(object):
         # self.big_data = self.big_data
         msg_split1 = self.big_data.split("End_Seg")
         print(f"len = {len(msg_split1)}, list = {msg_split1}")
-
         for i in range(len(msg_split1) - 1):
             mini_part = msg_split1[i]
             mini_part = mini_part.split("Start_Seg")[1]
             print(f"mini_part = {mini_part}")
-            # key = mini_part.split("%%%")[0]
-            data = mini_part  # .split("%%%")[1]
+            data = mini_part
             mini_part = Encryption.decrypt(data.encode(), self.key)
             self.message_q.put(mini_part)
         self.big_data = msg_split1[len(msg_split1) - 1]
+        print("done dfsdf")
+################################################################################
+        # print(f"my big big big data = {self.big_data}")
+        # # self.big_data = self.big_data
+        # msg_split1 = self.big_data.split("End_Seg")
+        # print(f"len = {len(msg_split1)}, list = {msg_split1}")
+        #
+        # for i in range(len(msg_split1) - 1):
+        #     mini_part = msg_split1[i]
+        #     mini_part = mini_part.split("Start_Seg")[1]
+        #     print(f"mini_part = {mini_part}")
+        #     # key = mini_part.split("%%%")[0]
+        #     data = mini_part  # .split("%%%")[1]
+        #     mini_part = self.do_decrypt(self.key, data.encode())
+        #     message_q.put(mini_part)
+        # self.big_data = msg_split1[len(msg_split1) - 1]
 
     def _handle_message(self):
         msg = self.message_q.get()
@@ -321,7 +337,7 @@ class Client(object):
         split_msg = msg.split(b'+*!?')
         command = split_msg[0]
         print(f"command= {command}")
-        if command == b'signed in successfully':
+        if command == b'signed up successfully':
             self.signed_up()
         if command == b'This email and username are\n currently in use':
             self.failed_sign_up(command)
@@ -346,15 +362,18 @@ class Client(object):
         if command == b'files_request':
             self._got_files_request(split_msg)
         if command == b'private_file':
-            print("private filllellelel")
             self._got_private_file(split_msg)
 
     def _run(self):
         while True:
             self.r_list, self.w_list, self.x_list = select.select([self.my_socket], [self.my_socket], [])
             if self.my_socket in self.r_list:
-                data = self.my_socket.recv(1024).decode('utf-8')
+                data = self.my_socket.recv(640000000).decode('utf-8')
+                print(f" data = {data}")
+                print(f"length of big data = {len(self.big_data)}")
                 self.big_data = self.big_data + data
+                print(f"length of big data = {len(self.big_data)}")
+                print("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
                 self._messages_connected()
                 self._handle_message()
 
@@ -364,17 +383,19 @@ class Client(object):
                     return
 
             self._send_messages()
-            time.sleep(0.2)
-            if type(self) == Client:
+            #time.sleep(0.2)
+            if type(self) == ClientInterface:
+                print("yellow")
                 self._enter_command()
-                time.sleep(0.25)
+                time.sleep(0.05)
 
             if self.is_end:
+                print("bro yellow")
                 return
 
     @staticmethod
     def run(ip='127.0.0.1', port=8080):
-        client = Client(ip=ip, port=port)
+        client = ClientInterface(ip=ip, port=port)
         client._run()
 
 

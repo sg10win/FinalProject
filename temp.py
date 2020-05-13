@@ -173,7 +173,7 @@ class Client():
                     dell.grid(row=5, column=0)
                     roots.update()
 
-                    if data == "signed in successfully":
+                    if data == "signed up successfully":
                         notificationL = Label(roots, text=data, bg='SpringGreen2', width=25)
                         notificationL.grid(row=5, column=0)
                         roots.update()
@@ -900,6 +900,7 @@ class ChatInterface(Frame, Client):
         # self.send_messages()
 
     def updata_gui_loop(self):
+        #self.master.after(1,self.run)
         while True:
             if self.is_close:
                 return
