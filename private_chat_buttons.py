@@ -1,12 +1,11 @@
 import time
-from tkinter import Button
 from tkinter import *
 
 
 
 class PrivateChatButton(Button):
 
-    def __init__(self, root, chat_name, chat_id, external_id, contacts, new_msgs, is_private, client):#todo to add new_msgs parameter to this function
+    def __init__(self, root, chat_name, chat_id, external_id, contacts, new_msgs, is_private, client):
         self.font = client.font
         Button.__init__(self, root, text=chat_name,font=self.font, command=lambda: self.chat_request(), width=18 ,bg="gray99" ,relief=FLAT)
         self.client = client
@@ -17,7 +16,6 @@ class PrivateChatButton(Button):
         self.new_msgs = int(new_msgs)
         self.is_private = is_private
         if self.new_msgs != 0:
-            print(f"in the boo if, new_msgs = {new_msgs}")
             self.new_msg_arrived()
             self.new_msgs = self.new_msgs-1
 
