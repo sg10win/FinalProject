@@ -19,7 +19,6 @@ class TopFrameObject(object):
             self.client.text_box.config(state=DISABLED)
             self.client.mode = "DISABLE"
             return
-        # for now i write the info in the textbox
         self.client._disable()
         msg = "chat info+*!?"+f"{self.client.current_id}"
         self.client.messages_to_send.append(msg)
@@ -37,8 +36,7 @@ class TopFrameObject(object):
             self.client.text_box.config(state=DISABLED)
             print("done")
             button = self.client.button_by_id(self.client.current_id)
-            # the buttons and the frames of them organized that way they have the same index
-
+            # the buttons and the frames of them organized that way they have the same index    
             try :
                 index = self.client.buttons.index(button)
                 self.client.button_frames[index].pack_forget()

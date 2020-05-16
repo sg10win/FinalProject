@@ -545,7 +545,6 @@ class Server(object):
             self.handle_file_request(chat_id)
 
         elif data.split(b'+*!?')[0].decode('utf-8') == "get_file_value":
-            print("ttl")
             tmp = data.split(b'+*!?')
             chat_id = tmp[1]
             file_id = tmp[2]
@@ -624,7 +623,6 @@ class Server(object):
                 self.handle_private_message(sender_username, sender_chat_id, external_id, msg)
 
     def link_in_DB(self, chat_external_id, manager_chat_id, username_to_link):
-
         manager_chat = self.db["chats"].get(int(manager_chat_id))
         linked_chat_name = f'[LNK]{manager_chat["name"]}'
         linker_name = self.db["users"].get(manager_chat["user_id"])["username"]

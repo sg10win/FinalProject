@@ -1,4 +1,3 @@
-import time
 from tkinter import *
 
 
@@ -30,11 +29,6 @@ class NewPrivateChatInterface(object):
         cancel_button = Button(frame, text='Cancel', relief=FLAT, bg='red', command=lambda: self.cancel())
         label = Label(frame, text='Enter contact', bg=self.tl_bg, fg=self.tl_fg)
 
-        # title_l.pack(side=TOP)
-        # create_button.pack(side=TOP)
-        # label.pack(side=TOP)
-        # self.entry.pack(side=TOP)
-        # cancel_button.pack(side=TOP)
 
         label.grid(row=1, column=0)
         self.entry.grid(row=1, column=1)

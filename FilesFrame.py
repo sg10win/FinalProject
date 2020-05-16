@@ -17,6 +17,8 @@ class FileButton(Button):
         self.pack()
 
     def get_file_value(self):
+        if self.name == "":
+            return
         msg = f'get_file_value+*!?{self.client.current_id}+*!?{self.file_id}'
         self.client.messages_to_send.append(msg)
         self.configure(background='firebrick2', text='downloading...')

@@ -1,10 +1,6 @@
-import time
-from tkinter import *
-from tkinter.scrolledtext import ScrolledText
-#Importing TKinter module
 from tkinter import *
 from tkinter import ttk
-import sys
+
 msg = ""
 
 

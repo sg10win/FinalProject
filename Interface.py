@@ -1,10 +1,7 @@
 import threading
-import sys
 import time
 from datetime import datetime
 from tkinter import filedialog
-
-import tk
 
 from ClientInterface import ClientInterface
 from tkinter import *
@@ -132,9 +129,6 @@ class Interface(ClientInterface):
         self.nameEL.grid(row=1, column=1)
         self.pwordEL.grid(row=2, column=1)
 
-        forgot_pass_button = Button(self.master, text='forgot password?', bg="orange")
-        forgot_pass_button.grid(column=1, row=3)
-
         login_b = Button(self.master, text='Login', bg="green", command= self._log_in)
         login_b.grid(columnspan=2, row=3, sticky=W)
         signup_b = Button(self.master, text="Signup", bg="blue", command=lambda: self.sign_up_time())
@@ -159,34 +153,17 @@ class Interface(ClientInterface):
         saved_username = ["You"]
         # Menu bar
 
-        # File
-        file = Menu(menu, tearoff=0)
-        menu.add_cascade(label="File", menu=file)
-        #file.add_command(label="Save Chat Log", command=self.save_chat)
-        file.add_command(label="Clear Chat", command=self.clear_chat)
-        file.add_separator()
-        file.add_command(label="Logout", command=self._client_exit)
+
         # Options
         options = Menu(menu, tearoff=0)
         menu.add_cascade(label="Options", menu=options)
 
-        # username
-        username = Menu(options, tearoff=0)
-        # options.add_cascade(label="Username", menu=username)
-        # username.add_command(label="Change Username", command=lambda: self.change_username(height=80))
-        # username.add_command(label="Default Username", command=self.default_username)
-        # username.add_command(label="View Username History", command=self.view_username_history)
-        # username.add_command(label="Clear Username History", command=self.clear_username_history)
-
-        options.add_separator()
 
         # font
         font = Menu(options, tearoff=0)
         options.add_cascade(label="Font", menu=font)
         font.add_command(label="Default", command=self.font_change_default)
         font.add_command(label="Times", command=self.font_change_times)
-        # font.add_command(label="System", command=self.font_change_system)
-        # font.add_command(label="Helvetica", command=self.font_change_helvetica)
         font.add_command(label="Fixedsys", command=self.font_change_fixedsys)
 
         # color theme
@@ -576,6 +553,17 @@ class Interface(ClientInterface):
             self.basic_signup_errors()
             return None
 
+    def client_exit(self):
+        msg_to_server = "NAK+*!?" + self.username
+        for btn in self.buttons:
+            msg_to_server = msg_to_server + "+*!?" + str(btn.chat_id) + "+*!?" + str(btn.new_msgs)
+        self.messages_to_send.append(msg_to_server)
+        self._send_messages()
+        self.client_exit()
+        self.my_socket.close()
+        self.is_end = True
+        exit()
+
 
     def loged_in(self):
         notificationL = Label(self.master, text="log-in ", bg='SpringGreen2', width=18)
@@ -587,13 +575,6 @@ class Interface(ClientInterface):
         notificationL = Label(self.master, text='try again', bg='firebrick2', width=25)
         notificationL.grid(row=5, column=0)
 
-
-
-    def save_chat(self):
-        pass
-
-    def clear_chat(self):
-        pass
 
     # returns the entry value and clears it
     def get_msg(self):
@@ -619,7 +600,7 @@ class Interface(ClientInterface):
         close_frame.pack(side=BOTTOM)
         close_button = Button(close_frame, text="Close", font="Verdana 9", relief=FLAT, bg=self.tl_bg,
                               fg=self.tl_fg, activebackground=self.tl_bg2,
-                              activeforeground=self.tl_fg, command=lambda: self.close_emoji)
+                              activeforeground=self.tl_fg, command=lambda: self.close_file_window())
         close_button.pack(side=BOTTOM)
 
         title = Label(self.files_selection_window, text='Files', bg=self.tl_bg, font="Verdana 16",
@@ -672,8 +653,8 @@ class Interface(ClientInterface):
             self.insert_to_text_box(message_to_display)
             self._choose_file(file_path, file_name)
 
-    def close_emoji(self):
-        pass
+    def close_file_window(self):
+        self.files_selection_window.destroy()
 
     def is_exit(self):
         if not self.master:

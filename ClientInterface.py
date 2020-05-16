@@ -221,11 +221,6 @@ class ClientInterface(object):
         pass
 
 
-    def _got_files_request(self, message):
-        print("got files request message")
-
-    def got_files_request(self):
-        pass
 
     def _got_private_file(self, message):
         splited = message[2]
@@ -266,12 +261,9 @@ class ClientInterface(object):
 
 
     def _client_exit(self):
-        message = f"NAK+*!?{self.username}"
-        self.messages_to_send.append(message)
-        self._send_messages()
         self.client_exit()
-        self.my_socket.close()
-        self.is_end = True
+
+
 
 
 
@@ -290,46 +282,14 @@ class ClientInterface(object):
         print(message)
 
     def _messages_connected(self):
-        # print(f"my big big big data = {self.big_data}")
-        # msg_split1 = self.big_data.split("End_Seg")
-        # print(f"len = {len(msg_split1)}, list = {msg_split1}")
-        #
-        # for i in range(len(msg_split1) - 1):
-        #     mini_part = msg_split1[i]
-        #     mini_part = mini_part.split("Start_Seg")[1]
-        #     print(f"mini_part = {mini_part}")
-        #     data = mini_part
-        #     mini_part = Encryption.decrypt(data.encode(), self.key)
-        #     self.message_q.put(mini_part)
-        # self.big_data = msg_split1[len(msg_split1) - 1]
-        print(f"my big big big data = {self.big_data}")
-        # self.big_data = self.big_data
         msg_split1 = self.big_data.split("End_Seg")
-        print(f"len = {len(msg_split1)}, list = {msg_split1}")
         for i in range(len(msg_split1) - 1):
             mini_part = msg_split1[i]
             mini_part = mini_part.split("Start_Seg")[1]
-            print(f"mini_part = {mini_part}")
             data = mini_part
             mini_part = Encryption.decrypt(data.encode(), self.key)
             self.message_q.put(mini_part)
         self.big_data = msg_split1[len(msg_split1) - 1]
-        print("done dfsdf")
-################################################################################
-        # print(f"my big big big data = {self.big_data}")
-        # # self.big_data = self.big_data
-        # msg_split1 = self.big_data.split("End_Seg")
-        # print(f"len = {len(msg_split1)}, list = {msg_split1}")
-        #
-        # for i in range(len(msg_split1) - 1):
-        #     mini_part = msg_split1[i]
-        #     mini_part = mini_part.split("Start_Seg")[1]
-        #     print(f"mini_part = {mini_part}")
-        #     # key = mini_part.split("%%%")[0]
-        #     data = mini_part  # .split("%%%")[1]
-        #     mini_part = self.do_decrypt(self.key, data.encode())
-        #     message_q.put(mini_part)
-        # self.big_data = msg_split1[len(msg_split1) - 1]
 
     def _handle_message(self):
         msg = self.message_q.get()
@@ -359,8 +319,6 @@ class ClientInterface(object):
             self._got_new_chat(split_msg)
         if command == b'files_in_chat':
             self._got_files_in_chat(split_msg)
-        if command == b'files_request':
-            self._got_files_request(split_msg)
         if command == b'private_file':
             self._got_private_file(split_msg)
 
