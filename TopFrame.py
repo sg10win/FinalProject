@@ -27,7 +27,7 @@ class TopFrameObject(object):
 
     def exit_chat(self):
         # starts with a warning msg
-        ans = messagebox.askokcancel("IChat", "Are you sure you want to leave this chat?")
+        ans = messagebox.askokcancel("ChatIt", "Are you sure you want to leave this chat?")
         if ans:
             msg = f"exit chat+*!?{self.client.username}+*!?{self.client.current_external_id}+*!?{self.client.current_id}"
             self.client.messages_to_send.append(msg)
@@ -39,7 +39,7 @@ class TopFrameObject(object):
             # the buttons and the frames of them organized that way they have the same index    
             try :
                 index = self.client.buttons.index(button)
-                self.client.button_frames[index].pack_forget()
+                self.client.button_frames[index+1].pack_forget()
                 self.client.buttons.remove(button)
                 self.client.button_frames.remove(self.client.button_frames[index])
             except:

@@ -4,7 +4,7 @@ import socket
 import sys
 import time
 from queue import Queue
-from datetime import datetime
+from datetime import datetime, date
 
 from Encryption import *
 
@@ -39,6 +39,7 @@ class ClientInterface(object):
         self.chat_id = None
 
         self.documents_folder = "downloads/"
+        self.logs_folder = "logs/"
 
     def _connect_to_server(self):
         self.my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -249,6 +250,26 @@ class ClientInterface(object):
                               f"{message}"
             self.messages_to_send.append(msg_to_send)
 
+    def get_textbox_text(self):
+        pass
+
+    # saves log of the current chat to the logs folder
+    def save_chat_log(self):
+        if self.mode == "DISABLE":
+            return
+        text = self.get_textbox_text()
+        today = date.today()
+        d = today.strftime("%d/%m/%Y")
+        now = datetime.now()
+        t = now.strftime("%d/%m/%Y %H:%M:%S")
+        title = f"=====log: chat name: {self.current_chat_name} date: {t}=====\n"
+        d = d.split('/')
+        file_name = f"{self.logs_folder}{'_'.join(d)}{self.current_chat_name}"
+        file1 = open(f"{file_name}.txt", "w")
+        file1.write(title)
+        file1.write(text)
+        file1.close()
+
     def open_new_chat_window(self):
         pass
 
@@ -343,12 +364,10 @@ class ClientInterface(object):
             self._send_messages()
             #time.sleep(0.2)
             if type(self) == ClientInterface:
-                print("yellow")
                 self._enter_command()
                 time.sleep(0.05)
 
             if self.is_end:
-                print("bro yellow")
                 return
 
     @staticmethod

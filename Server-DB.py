@@ -241,6 +241,15 @@ class Server(object):
     # creates a new private chat - starts a new row of chat, insert all the
     # data it needs and sends to the online clients new chat message
     def create_new_privet_chat(self, username_1, username_2):
+        for i in get_column_from_db('id', self.db['chats']):
+            chat = self.db['chats'].get(i)
+            cont = chat["contacts"]
+            is_private = chat['is_private']
+            if is_private is 1:
+                cont_split = cont.split(',')
+                if cont_split == [username_1, username_2] or cont_split == [username_2, username_1]:
+                    return
+
         new_chat_msg_1 = f'IChat Server: this is a private chat with {username_2}'
         new_chat_msg_2 = f'IChat Server: this is a private chat with {username_1}'
         ids = get_column_from_db("id", self.db['users'])
@@ -466,7 +475,8 @@ class Server(object):
         while True:
             try:
                 dict = self.db['users'].get(current_id)
-                if dict["username"] == username and dict["hashed_password"] == hashed_pass:
+                if dict["username"] == username and dict["hashed_password"] == hashed_pass and\
+                        username not in self.clients.get_usernames():
                     # here the server needs send key to client and to send the chats msgs  "new chat msgs"
                     self.msg_maker("loged-in", _list)
                     self.send_waiting_messages()
@@ -484,7 +494,7 @@ class Server(object):
                     return True
                 current_id = current_id + 1
             except NotFoundError:
-                self.msg_maker("try again", list)
+                self.msg_maker("try again", _list)
                 return False
 
     # checks if client that didn't sign in exits
@@ -702,7 +712,7 @@ class Server(object):
 
         contacts_in_chat_after_remove = ','.join(contacts_in_chat_before_remove)
         msg_to_save = f"private+*!?Server+*!?{_chat_id}+*!?{_chat_external_id}+*!?{username} left"
-        self.save_msg_in_db(msg_to_save)
+        self.save_msg_in_db("Server", f"{_chat_id}", f"{_chat_external_id}", f"{username} left")
         for chat_id in chat_ids:
             chat = self.db["chats"].get(chat_id)
             if str(chat['external_id']) == _chat_external_id:
@@ -713,7 +723,11 @@ class Server(object):
                     self.msg_maker(msg_to_send,
                                    [self.clients.get_socket(self.db["users"].get(chat["user_id"])["username"])])
             if str(chat['id']) == _chat_id:
+                for i in get_column_from_db("id",self.db["chats"]):
+                    print(self.db['chats'].get(i))
                 self.db["chats"].delete(chat_id)
+                for i in get_column_from_db("id",self.db["chats"]):
+                    print(self.db['chats'].get(i))
                 break
 
     # this function sends a info of the current chat (chat_id) to the client
@@ -853,7 +867,7 @@ class Server(object):
                         msg = f"private+*!?Server+*!?{i}+*!?{username_to_add} added"
                         self.msg_maker(msg, [self.clients.get_socket(user_name)])
             msg_to_save = f"private+*!?Server+*!?{chat_id}+*!?{external_id}+*!?{username_to_add} added"
-            self.save_msg_in_db(msg_to_save)
+            self.save_msg_in_db('Server', f"{chat_id}", f"{external_id}", f"{username_to_add} added")
             self.db['chats'].insert({"id": self.last_id, "external_id": external_id, "name": chat_name,
                                      "msgs": f"Server: @{sender_username} added you to this chat",
                                      "contacts": new_contacts_string,
@@ -968,7 +982,7 @@ class Server(object):
                     else:
                         self.msg_maker(f"private+*!?[{linker_username}]{sender_username}+*!?{c}+*!?{msg}", sockets)
                 if is_user_linked is True and is_sender_linked is False:
-                    self.msg_maker(f"private+*!?[{linker_username}]{sender_username}+*!?{c}+*!?{msg}", sockets)
+                    self.msg_maker(f"private+*!?{sender_username}+*!?{c}+*!?{msg}", sockets)
                 else:
                     if manager:
                         self.msg_maker(f"private+*!?@{sender_username}+*!?{c}+*!?{msg}", sockets)

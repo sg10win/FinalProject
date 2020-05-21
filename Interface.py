@@ -76,28 +76,27 @@ class Interface(ClientInterface):
         self.delete_all_in_root()
         # This creates the window, just a blank one.
         self.master.geometry('420x200')
-        #self.master.resizable(width=False, height=False)
-        self.master.title('Signup')  # This renames the title of said window to 'signup'
+        self.master.title('Signup')
         intruction = Label(self.master,
-                           text='Please signup\n')  # This puts a label, so just a piece of text saying 'please enter blah'
+                           text='Please signup\n')
         intruction.grid(row=0, column=0,
-                        sticky=E)  # This just puts it in the window, on row 0, col 0. If you want to learn more look up a tkinter tutorial :)
+                        sticky=E)
         emailL = Label(self.master,
-                       text='Email: ')  # This just does the same as above, instead with the text new username.
+                       text='Email: ')
         nameL = Label(self.master,
-                      text='Username: ')  # This just does the same as above, instead with the text new username.
+                      text='Username: ')
         pwordL = Label(self.master, text='Password: ')  # ^^
         re_pwordL = Label(self.master, text="Re-Password: ")
         emailL.grid(row=1, column=0,
-                    sticky=W)  # Same thing as the instruction var just on different rows. :) Tkinter is like that.
-        nameL.grid(row=2, column=0, sticky=W)  # ^^
-        pwordL.grid(row=3, column=0, sticky=W)  # ^^
+                    sticky=W)
+        nameL.grid(row=2, column=0, sticky=W)
+        pwordL.grid(row=3, column=0, sticky=W)
         re_pwordL.grid(row=4, column=0, sticky=W)
 
-        self.emailE = Entry(self.master, width=30)  # This now puts a text box waiting for input.
-        self.nameE = Entry(self.master, width=30)  # ^^
+        self.emailE = Entry(self.master, width=30)
+        self.nameE = Entry(self.master, width=30)
         self.pwordE = Entry(self.master, show='*',
-                       width=30)  # Same as above, yet 'show="*"' What this does is replace the text with *, like a password box :D
+                       width=30)
         self.re_pwordE = Entry(self.master, show='*', width=30)  # ^^
         self.emailE.grid(row=1, column=1)
         self.nameE.grid(row=2, column=1)
@@ -106,25 +105,21 @@ class Interface(ClientInterface):
 
         submit_Button = Button(self.master, text='submit', width=25, bg="DodgerBlue2",
                                command=lambda: self._sign_up())
-        # This creates the button with the text 'signup', when you click it, the command 'fssignup' will run. which is the def
-        # print("after")
         submit_Button.grid(row=5, column=1, sticky="e")
         loginB = Button(self.master, text='Login',command=lambda: self.log_in_time())
-        # This makes the login button, which will go to the Login def.
         loginB.grid(columnspan=2, sticky=W)
-        self.master.mainloop()  # This just makes the window keep open, we will destroy it soon
+        self.master.mainloop()
 
     def log_in_time(self):
         self.delete_all_in_root()
-        intruction = Label(self.master, text='Please Login\n')  # More labels to tell us what they do
-        intruction.grid(sticky=E)  # Blahdy Blah
-
-        nameL = Label(self.master, text='Username: ')  # More labels
-        pwordL = Label(self.master, text='Password: ')  # ^
+        intruction = Label(self.master, text='Please Login\n')
+        intruction.grid(sticky=E)
+        nameL = Label(self.master, text='Username: ')
+        pwordL = Label(self.master, text='Password: ')
         nameL.grid(row=1, sticky=W)
         pwordL.grid(row=2, sticky=W)
 
-        self.nameEL = Entry(self.master)  # The entry input
+        self.nameEL = Entry(self.master)
         self.pwordEL = Entry(self.master, show='*')
         self.nameEL.grid(row=1, column=1)
         self.pwordEL.grid(row=2, column=1)
@@ -146,14 +141,13 @@ class Interface(ClientInterface):
         self.tl_fg = "#000000"
         self.font = "Verdana 10"
 
-        # self.get_args_from_file("args.txt")
         menu = Menu(self.master)
         self.master.config(menu=menu, bd=5)
-        global saved_username
-        saved_username = ["You"]
+
         # Menu bar
-
-
+        log = Menu(menu, tearoff=0)
+        menu.add_cascade(label="log", menu=log)
+        log.add_command(label="save chat log", command=self.save_chat_log)
         # Options
         options = Menu(menu, tearoff=0)
         menu.add_cascade(label="Options", menu=options)
@@ -170,8 +164,6 @@ class Interface(ClientInterface):
         color_theme = Menu(options, tearoff=0)
         options.add_cascade(label="Color Theme", menu=color_theme)
         color_theme.add_command(label="Default", command=self.color_theme_default)
-        # color_theme.add_command(label="Night", command=self.color_theme_dark)
-        # color_theme.add_command(label="Grey", command=self.color_theme_grey)
         color_theme.add_command(label="Blue", command=self.color_theme_dark_blue)
         color_theme.add_command(label="Turquoise", command=self.color_theme_turquoise)
         color_theme.add_command(label="Hacker", command=self.color_theme_hacker)
@@ -326,7 +318,7 @@ class Interface(ClientInterface):
             self.sent_label.destroy()
         except AttributeError:
             pass
-        self.sent_label = Label(self.entry_frame, font="Verdana 6", text=date, bg=self.tl_bg2, fg=self.tl_fg)
+        self.sent_label = Label(self.entry_frame, font="Verdana 7", text=date, bg=self.tl_bg2, fg=self.tl_fg)
         self.sent_label.pack(side=LEFT, fill=X, padx=3)
 
     def got_new_chat(self, chat_id, external_id, chat_name, contacts, new_msgs, is_private):
@@ -540,6 +532,8 @@ class Interface(ClientInterface):
     def get_username_and_password(self):
         self.username = self.nameEL.get()
         self.password = self.pwordEL.get()
+        if self.username == '' or self.password == '':
+            self.failed_log_in()
         return self.username, self.password
 
     def get_username_passwords_and_mail(self):
@@ -559,7 +553,7 @@ class Interface(ClientInterface):
             msg_to_server = msg_to_server + "+*!?" + str(btn.chat_id) + "+*!?" + str(btn.new_msgs)
         self.messages_to_send.append(msg_to_server)
         self._send_messages()
-        self.client_exit()
+        #self.client_exit()
         self.my_socket.close()
         self.is_end = True
         exit()
@@ -575,6 +569,8 @@ class Interface(ClientInterface):
         notificationL = Label(self.master, text='try again', bg='firebrick2', width=25)
         notificationL.grid(row=5, column=0)
 
+    def get_textbox_text(self):
+        return self.text_box.get(1.0, END)
 
     # returns the entry value and clears it
     def get_msg(self):

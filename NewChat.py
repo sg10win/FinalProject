@@ -20,16 +20,19 @@ class NewChatInterface:
 
 
     def filter (self, str):
-        if str==None:
-            return ""
-        while str[0]==" ":
-            str = str[1:]
-        while str[-1]==" ":
-            str = str[:-1]
-        return str
+        try:
+            if str==None:
+                return ""
+            while str[0]==" ":
+                str = str[1:]
+            while str[-1]==" ":
+                str = str[:-1]
+            return str
+        except:
+            return str
 
 
-    def create (self, nameE, text_boxL, text_boxR, root):
+    def create(self, nameE, text_boxL, text_boxR, root):
         name = nameE.get()
         added = self.added
         name = self.filter(name)
@@ -40,7 +43,7 @@ class NewChatInterface:
             text_boxR.see(END)
             text_boxR.configure(state=DISABLED)
             return
-        if added == None:
+        elif added is None or added is []:
             text_boxR.configure(state=NORMAL)
             text_boxR.delete('1.0', END)
             text_boxR.insert(END, "no contacts added")
@@ -57,15 +60,9 @@ class NewChatInterface:
             msg = "create chat+*!?"+name+"+*!?"+added+","+self.ChatInterface.username
             self.ChatInterface.messages_to_send.append(msg)
             print(self.ChatInterface.messages_to_send)
-            #self.ChatInterface._send_messages()
             print(msg)
             self.cancel(root)
-            # root.destroy()
-            # self.last_frame.pack(fill=BOTH, expand=True)
-            # self.ChatInterface.text_box.configure(state=NORMAL)
-            # self.ChatInterface.text_box.delete(1.0, END)
-            # self.ChatInterface.text_box.configure(state=DISABLED)
-            #######
+
 
 
     def remove(self, text_boxL, combobox ,text_boxR):
