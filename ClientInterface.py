@@ -10,9 +10,11 @@ from Encryption import *
 
 
 class ClientInterface(object):
-    def __init__(self, ip='127.0.0.1', port=8080):
-        self.ip = ip
-        self.port = port
+    def __init__(self):
+        self.configuration_path = "configuration.txt"
+        self.ip = None
+        self.port = None
+        self._read_configuration_file()
 
         self.my_socket = None
         self.r_list = []
@@ -43,6 +45,7 @@ class ClientInterface(object):
 
     def _connect_to_server(self):
         self.my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        print(f'ip={self.ip}, port={self.port}')
         self.my_socket.connect((self.ip, self.port))
         print('connect to server just socket')
         self.key = self.my_socket.recv(1024).decode('utf-8').encode()
@@ -284,9 +287,12 @@ class ClientInterface(object):
     def _client_exit(self):
         self.client_exit()
 
-
-
-
+    def _read_configuration_file(self):
+        f = open(self.configuration_path, "r")
+        args = f.readlines()
+        self.ip, self.port = args[0].split(',')
+        self.ip = str(self.ip)
+        self.port = int(self.port)
 
     def _enter_command(self):
         command = input('enter command')
@@ -371,8 +377,8 @@ class ClientInterface(object):
                 return
 
     @staticmethod
-    def run(ip='127.0.0.1', port=8080):
-        client = ClientInterface(ip=ip, port=port)
+    def run():
+        client = ClientInterface()
         client._run()
 
 

@@ -16,7 +16,7 @@ from pygame import mixer
 class Interface(ClientInterface):
 
     def __init__(self, roots):
-        ClientInterface.__init__(self, ip='127.0.0.1', port=8080)
+        ClientInterface.__init__(self)
 
         self.master = roots
 
@@ -657,7 +657,7 @@ class Interface(ClientInterface):
             self._client_exit()
 
     @staticmethod
-    def run(ip='127.0.0.1', port=8880):
+    def run():
         roots = Tk()
         temp = Interface(roots)
         thread = threading.Thread(target=temp._run)

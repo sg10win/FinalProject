@@ -115,8 +115,10 @@ class ListClients(object):
 
 class Server(object):
     def __init__(self):
-        self.ip = "0.0.0.0"
-        self.port = 8080
+        self.ip = None
+        self.port = None
+        self.configuration_path = 'configuration.txt'
+        self._read_configuration_file()
         self.server_socket = socket.socket()
         self.server_socket.bind((self.ip, self.port))
         self.server_socket.listen(20)
@@ -190,6 +192,13 @@ class Server(object):
             "value": bytes,
             "username_of_sender": str
         })
+
+    def _read_configuration_file(self):
+        f = open(self.configuration_path, "r")
+        args = f.readlines()
+        self.ip, self.port = args[0].split(',')
+        self.ip = str(self.ip)
+        self.port = int(self.port)
 
     # gets a data and list of sockets to send it to them and builds a message and appends it to self.messages
     # (the messages that need to be sent)
@@ -1010,6 +1019,8 @@ def get_column_from_db(column, table):
             i = i + 1
         except NotFoundError:
             return _list
+
+
 
 
 if __name__ == '__main__':
