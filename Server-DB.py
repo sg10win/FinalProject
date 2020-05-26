@@ -731,12 +731,15 @@ class Server(object):
                     msg_to_send = f"private+*!?Server+*!?{chat_id}+*!?{username} left"
                     self.msg_maker(msg_to_send,
                                    [self.clients.get_socket(self.db["users"].get(chat["user_id"])["username"])])
-            if str(chat['id']) == _chat_id:
+            if str(chat_id) == _chat_id:
+                print("VROOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOMMMMMMMMMMMMMMMMMMMMMMMMMMMM")
                 for i in get_column_from_db("id",self.db["chats"]):
-                    print(self.db['chats'].get(i))
-                self.db["chats"].delete(chat_id)
+                    print(f"befor - {self.db['chats'].get(i)}")
+                print(chat_id, type(chat_id))
+                self.db['chats'].update(chat_id, {"user_id": None})
+                #self.db["chats"].delete(chat_id)
                 for i in get_column_from_db("id",self.db["chats"]):
-                    print(self.db['chats'].get(i))
+                    print(f"after - {self.db['chats'].get(i)}")
                 break
 
     # this function sends a info of the current chat (chat_id) to the client
